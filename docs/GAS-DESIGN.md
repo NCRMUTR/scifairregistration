@@ -96,6 +96,10 @@ gas/                      โค้ดฝั่ง GAS (push ด้วย clasp 
                           uploads go to team-files/<year>/<ref_no>_<team id prefix>/ so a whole edition can be removed by folder
   Admin.gs                ล็อกอิน/session/TOTP/audit/overview
   AdminData.gs            action ของ admin: ปี/เนื้อหา/ทีม/ช่องส่งไฟล์ (backup/purge จะเพิ่มใน G6)
+  Gallery.gs              ภาพกิจกรรม: public_gallery, public_album (สาธารณะ) + admin_albums/admin_album/admin_save_album/
+                          admin_reorder_albums/admin_delete_album/admin_prepare_photo/admin_confirm_photo/admin_update_photo/
+                          admin_set_cover/admin_reorder_photos/admin_delete_photo — รูปเก็บในโฟลเดอร์ gallery (สาธารณะ) ย่อในเบราว์เซอร์
+                          (src/lib/image.js) ก่อนส่ง; อัลบั้มที่ยังไม่มีรูปและไม่มีลิงก์ภายนอกจะไม่แสดงบนเว็บ
   Db.gs                   helper อ่าน/เขียนชีต (plain-text, index, rollback)
 src/lib/api.js            เรียก GAS + errorText (แทน supabase.js)
 ```

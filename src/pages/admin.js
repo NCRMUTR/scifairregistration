@@ -11,7 +11,7 @@ const TABS = [
   { key: 'content', label: 'เนื้อหาหน้าเว็บ', load: () => import('./admin/content.js') },
   { key: 'teams', label: 'รายชื่อทีม', load: () => import('./admin/teams.js') },
   { key: 'slots', label: 'ช่องส่งไฟล์', load: () => import('./admin/slots.js') },
-  { key: 'gallery', label: 'ภาพกิจกรรม', load: () => import('./admin/later.js').then((m) => ({ render: (c) => m.render(c, 'ภาพกิจกรรม', 'Stage G5') })) },
+  { key: 'gallery', label: 'ภาพกิจกรรม', load: () => import('./admin/gallery.js') },
   { key: 'backup', label: 'สำรอง/รีเซ็ต', load: () => import('./admin/later.js').then((m) => ({ render: (c) => m.render(c, 'สำรอง/รีเซ็ตข้อมูล', 'Stage G6') })) },
   { key: 'account', label: 'บัญชีของฉัน', load: () => import('./admin/account.js') },
 ];

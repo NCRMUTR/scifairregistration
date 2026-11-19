@@ -110,5 +110,5 @@
   
   /** Admin actions call this after changing content so visitors see it right away. */
   function bustPublicCache_() {
-    CacheService.getScriptCache().remove('public_data');
+    CacheService.getScriptCache().removeAll(['public_data', 'public_gallery']);
   }

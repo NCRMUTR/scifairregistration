@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g4';
+const VERSION = 'g5';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -45,6 +45,8 @@ const ACTIONS = {
   prepare_upload: function (req) { return prepareUpload_(req); },
   confirm_upload: function (req) { return confirmUpload_(req); },
   send_message: function (req) { return sendMessage_(req); },
+  public_gallery: function (req) { return publicGallery_(req); },
+  public_album: function (req) { return publicAlbum_(req); },
 
   // ── admin (every one except admin_login needs req.session) ──
   admin_login: function (req) { return adminLogin_(req); },
@@ -71,6 +73,17 @@ const ACTIONS = {
   admin_slots: function (req) { return adminSlots_(req); },
   admin_save_slot: function (req) { return adminSaveSlot_(req); },
   admin_delete_slot: function (req) { return adminDeleteSlot_(req); },
+  admin_albums: function (req) { return adminAlbums_(req); },
+  admin_album: function (req) { return adminAlbum_(req); },
+  admin_save_album: function (req) { return adminSaveAlbum_(req); },
+  admin_reorder_albums: function (req) { return adminReorderAlbums_(req); },
+  admin_delete_album: function (req) { return adminDeleteAlbum_(req); },
+  admin_prepare_photo: function (req) { return adminPreparePhoto_(req); },
+  admin_confirm_photo: function (req) { return adminConfirmPhoto_(req); },
+  admin_update_photo: function (req) { return adminUpdatePhoto_(req); },
+  admin_set_cover: function (req) { return adminSetCover_(req); },
+  admin_reorder_photos: function (req) { return adminReorderPhotos_(req); },
+  admin_delete_photo: function (req) { return adminDeletePhoto_(req); },
 };
 
 // ───────────── shared helpers used by every write action ─────────────

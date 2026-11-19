@@ -337,8 +337,9 @@ function adminResetPin_(req) {
   return adminWrite_(req, function (r, s) {
     if (typeof r.pin !== 'string' || !RE_PIN.test(r.pin)) throw fail_('invalid_pin');
     const t = findRow_('teams', r.team_id);
-    update_('teams', t._row, { pin_hash: pinHash_(t.id, r.pin) });
     const ed = findRow_('editions', t.edition_id);
+    if (ed.purged_at) throw fail_('edition_purged'); // an anonymised team must stay unusable
+    update_('teams', t._row, { pin_hash: pinHash_(t.id, r.pin) });
     attemptClear_(attemptGet_(ed.year + ':' + t.name_en_key.slice(0, 120)));
     audit_(s, 'reset_pin', t.id, { ref_no: t.ref_no });
     return { reset: true };

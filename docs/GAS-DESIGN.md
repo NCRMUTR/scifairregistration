@@ -68,7 +68,7 @@
 
 - **อัปโหลดจากเบราว์เซอร์:** GAS ตรวจสิทธิ์/ชนิด/ขนาดแล้วเรียก Drive API เปิด *resumable upload session* (ด้วย `ScriptApp.getOAuthToken()`) ส่ง URL ให้เบราว์เซอร์ PUT ไฟล์ตรงไป Google แล้วเรียก `confirm_upload` ให้ GAS ตรวจว่าไฟล์อยู่ในโฟลเดอร์ที่ถูกต้องและขนาดตรงก่อนบันทึก (เทียบกับ signed URL เดิม) — **ต้องพิสูจน์ใน Stage G0** ว่า CORS จากโดเมน GitHub Pages ใช้ได้; ถ้าไม่ได้ ถอยไปส่ง base64 ผ่าน GAS (จำกัดไฟล์ ≤ ~5 MB)
 - **แสดงผลสาธารณะ:** รูป `https://drive.google.com/thumbnail?id=<id>&sz=w480` (หรือ `w2000`), PDF ใน iframe `https://drive.google.com/file/d/<id>/preview`, ดาวน์โหลด `https://drive.google.com/uc?export=download&id=<id>` — URL เหล่านี้ไม่ใช่ API ทางการ อาจเปลี่ยน/ถูกจำกัดการโหลดซ้ำ (**ตรวจใน G0**) ภาพชุดใหญ่แนะนำใช้ `external_url`
-- **ลบจริง:** รีเซ็ตต้องลบไฟล์แบบถาวร (ไม่ใช่แค่ถังขยะ) ด้วย Advanced Drive Service `Drive.Files.remove`
+- **ลบจริง:** รีเซ็ตต้องลบไฟล์แบบถาวร (ไม่ใช่แค่ถังขยะ) โดยเรียก Drive REST API `DELETE /drive/v3/files/<id>` ผ่าน `UrlFetchApp` ด้วย OAuth token ของสคริปต์ (scope `drive` ที่มีอยู่แล้ว — **ไม่ต้องเปิด Advanced Drive Service**) 
 
 ## 6. สำรองและรีเซ็ต (เปลี่ยนจากเดิม)
 
@@ -95,7 +95,10 @@ gas/                      โค้ดฝั่ง GAS (push ด้วย clasp 
   Team.gs                 lookup_team, send_message, prepare_upload, confirm_upload (all via verifyTeam_ = name+PIN, lock-out, inside the lock)
                           uploads go to team-files/<year>/<ref_no>_<team id prefix>/ so a whole edition can be removed by folder
   Admin.gs                ล็อกอิน/session/TOTP/audit/overview
-  AdminData.gs            action ของ admin: ปี/เนื้อหา/ทีม/ช่องส่งไฟล์ (backup/purge จะเพิ่มใน G6)
+  AdminData.gs            action ของ admin: ปี/เนื้อหา/ทีม/ช่องส่งไฟล์
+  Backup.gs               admin_backups / admin_backup / admin_purge: สำรองลง Drive `backups` (สำเนาชีต + CSV + ZIP ไฟล์) และรีเซ็ตแบบมี guard 6 ข้อ
+                          ตรวจตามลำดับ: sign-in ≤ 10 นาที → ข้อความ `PURGE <ปี>` → สำรอง ≤ 24 ชม. → ข้อมูลไม่เปลี่ยนหลังสำรอง (guard เพิ่มเติม)
+                          → รหัสผ่านซ้ำ → TOTP (ตรวจสิ่งที่ไม่ใช้ข้อมูลลับก่อน คำขอที่ถูกปฏิเสธจึงไม่เผา TOTP) ทั้งหมดใน script lock เดียว
   Gallery.gs              ภาพกิจกรรม: public_gallery, public_album (สาธารณะ) + admin_albums/admin_album/admin_save_album/
                           admin_reorder_albums/admin_delete_album/admin_prepare_photo/admin_confirm_photo/admin_update_photo/
                           admin_set_cover/admin_reorder_photos/admin_delete_photo — รูปเก็บในโฟลเดอร์ gallery (สาธารณะ) ย่อในเบราว์เซอร์

@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g5';
+const VERSION = 'g6';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -84,6 +84,9 @@ const ACTIONS = {
   admin_set_cover: function (req) { return adminSetCover_(req); },
   admin_reorder_photos: function (req) { return adminReorderPhotos_(req); },
   admin_delete_photo: function (req) { return adminDeletePhoto_(req); },
+  admin_backups: function (req) { return adminBackups_(req); },
+  admin_backup: function (req) { return adminBackup_(req); },
+  admin_purge: function (req) { return adminPurge_(req); },
 };
 
 // ───────────── shared helpers used by every write action ─────────────

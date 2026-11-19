@@ -1,7 +1,7 @@
 // #/  Home: hero -> intro -> details (PDF modal) -> apply button + status -> key dates -> latest photos -> footer.
 // Everything comes from the 'public_site' action (settings, current edition, latest photos, ready-to-use Drive URLs).
 // Registration state is for display only; submit_team re-checks on the server.
-import { h } from '../lib/dom.js';
+import { h, append } from '../lib/dom.js';
 import { loadSite, setting } from '../lib/site.js';
 import { mountShell, renderLoadError } from '../lib/layout.js';
 import { openModal } from '../lib/modal.js';
@@ -140,7 +140,8 @@ export async function render(root) {
   const main = mountShell(root, { site, hero: buildHero(site) });
   const detailsLabel = setting(site, 'details_button_label', 'รายละเอียดโครงการ');
 
-  main.append(
+  // dom.append skips null (the photo strip is null until an album is published); native append() would print "null".
+  append(main, [
     h(
       'section',
       { class: 'intro', 'aria-label': 'แนะนำโครงการ' },
@@ -150,7 +151,7 @@ export async function render(root) {
     ),
     buildDates(site),
     buildPhotos(site.latest_photos ?? []),
-  );
+  ]);
 
   // If the visitor arrived through the "กำหนดการ" menu link (#/dates), the router scrolls after render.
 }

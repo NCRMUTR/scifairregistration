@@ -29,3 +29,17 @@ export function formatKeyDate(value) {
   }
   return raw;
 }
+
+// ── admin date inputs: <input type="datetime-local"> is entered in Thai time (UTC+7, no daylight saving) ──
+/** ISO timestamp -> "YYYY-MM-DDTHH:mm" in Thai time ('' if empty/invalid) */
+export function toLocalInput(iso) {
+  const t = iso ? new Date(iso).getTime() : NaN;
+  return Number.isNaN(t) ? '' : new Date(t + 7 * 3600 * 1000).toISOString().slice(0, 16);
+}
+
+/** "YYYY-MM-DDTHH:mm" (Thai time) -> ISO timestamp ('' if empty/invalid) */
+export function fromLocalInput(value) {
+  if (!value) return '';
+  const t = new Date(`${value}:00+07:00`).getTime();
+  return Number.isNaN(t) ? '' : new Date(t).toISOString();
+}

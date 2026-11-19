@@ -65,6 +65,30 @@ export async function api(action, payload = {}, { retry = 0 } = {}) {
   throw lastError;
 }
 
+/** Upload a file to Drive with a URL from prepare_*; resolves with the Drive file id. */
+export function putToDrive(uploadUrl, file, onProgress = () => {}) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', uploadUrl);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(e.loaded / e.total);
+    };
+    xhr.onerror = () => reject(new Error('network'));
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const id = JSON.parse(xhr.responseText)?.id;
+          if (id) return resolve(id);
+        } catch {
+          /* fall through */
+        }
+      }
+      reject(new Error(`drive ${xhr.status}`));
+    };
+    xhr.send(file);
+  });
+}
+
 // Machine-readable reason codes -> Thai text for the UI.
 export const errorText = {
   network: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง',
@@ -98,6 +122,17 @@ export const errorText = {
   origin_not_allowed: 'เว็บนี้ยังไม่ได้รับอนุญาตให้อัปโหลดไฟล์ โปรดแจ้งผู้จัดงาน',
   file_not_found: 'ไม่พบไฟล์ที่อัปโหลด โปรดลองส่งใหม่',
   upload_failed: 'อัปโหลดไม่สำเร็จ โปรดลองอีกครั้ง',
+  admin_invalid: 'ID หรือรหัสผ่านไม่ถูกต้อง',
+  admin_locked: 'กรอกผิดหลายครั้ง ระบบล็อกการเข้าสู่ระบบชั่วคราว 15 นาที',
+  password_too_short: 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 12 ตัวอักษร',
+  password_same: 'รหัสผ่านใหม่ต้องไม่ซ้ำรหัสเดิม',
+  totp_not_registered: 'ยังไม่ได้ลงทะเบียนแอป Authenticator (2FA)',
+  totp_invalid: 'รหัส 6 หลักไม่ถูกต้อง หรือถูกใช้ไปแล้ว',
+  totp_expired: 'หมดเวลาลงทะเบียน โปรดกดเริ่มใหม่',
+  not_found: 'ไม่พบข้อมูลที่ต้องการ (อาจถูกลบไปแล้ว)',
+  invalid_window: 'เวลาเปิดรับสมัครต้องมาก่อนเวลาปิดรับสมัคร',
+  edition_purged: 'รอบนี้ถูกรีเซ็ตข้อมูลแล้ว แก้ไขข้อมูลทีมไม่ได้',
+  slot_has_files: 'ช่องนี้มีไฟล์ที่ทีมส่งแล้ว',
 };
 
 /** Thai message for any error thrown by api(). */

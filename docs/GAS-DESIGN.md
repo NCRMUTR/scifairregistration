@@ -51,7 +51,7 @@
 
 - หน้า `#/admin` มีช่อง **ID** (เช่นอีเมลองค์กร) + **รหัสผ่าน** → action `admin_login` → GAS เทียบกับ `ADMIN_USERS` ใน Script Properties (เก็บเป็น HMAC ของรหัสผ่าน ไม่เก็บรหัสจริง) แล้วออก **session token** แบบสุ่ม (เก็บใน `CacheService` อายุ 2 ชม.) ส่งไปกับทุก action ของ admin
 - ล็อกอินผิด 5 ครั้ง/15 นาทีถูกล็อก (นับรวมทั้งระบบ ไม่ใช่ต่อ IP — ผู้โจมตีอาจทำให้ admin ล็อกอินไม่ได้ชั่วคราวได้ ยอมรับ)
-- **ห้ามเก็บ ID/รหัสผ่านจริงในโค้ด เอกสาร หรือ repo** ตั้งรหัสผ่านครั้งแรก: ใส่ Script Property ชั่วคราวชื่อ `NEW_ADMIN_PASSWORD` (Project Settings → Script properties) แล้วรัน `createAdmin('<id>')` ในตัวแก้ไข — ฟังก์ชันแฮชแล้วลบ property นั้นทิ้ง; หน้า admin มีปุ่มเปลี่ยนรหัสผ่าน; ระบบปฏิเสธรหัสที่สั้นกว่า 12 ตัวอักษร
+- **ห้ามเก็บ ID/รหัสผ่านจริงในโค้ด เอกสาร หรือ repo** ตั้งรหัสผ่านครั้งแรก (หรือเมื่อลืมรหัส): ใส่ Script Property ชั่วคราว `NEW_ADMIN_ID` และ `NEW_ADMIN_PASSWORD` (Project Settings → Script properties) แล้วเลือกฟังก์ชัน `createAdmin` กด Run ในตัวแก้ไข — ฟังก์ชันแฮชแล้วลบทั้งสอง property ทิ้ง (ลืม TOTP: `resetAdminTotp` กับ `NEW_ADMIN_ID`); หน้า admin มีปุ่มเปลี่ยนรหัสผ่าน; ระบบปฏิเสธรหัสที่สั้นกว่า 12 ตัวอักษร
 - **MFA เฉพาะรายการอันตราย (รีเซ็ตข้อมูล):** admin ลงทะเบียน **TOTP** (แอป Authenticator) ครั้งเดียว (secret เก็บใน Script Properties ไม่ใช่ในชีต) การรีเซ็ตต้องกรอกรหัสผ่านซ้ำ + รหัส 6 หลักจากแอป ณ ตอนทำรายการ — ใช้แทน `aal2` เดิม (*ค่าเริ่มต้นที่เสนอ รอผู้ใช้ยืนยันว่าจะบังคับ TOTP ตอนล็อกอินทุกครั้งด้วยหรือไม่*)
 - ไม่ต้องใช้ Google Cloud / OAuth
 
@@ -94,7 +94,8 @@ gas/                      โค้ดฝั่ง GAS (push ด้วย clasp 
   Apply.gs                student_id_taken, submit_team
   Team.gs                 lookup_team, send_message, prepare_upload, confirm_upload (all via verifyTeam_ = name+PIN, lock-out, inside the lock)
                           uploads go to team-files/<year>/<ref_no>_<team id prefix>/ so a whole edition can be removed by folder
-  Admin.gs                ล็อกอิน/session/TOTP + action ของ admin + backup/purge
+  Admin.gs                ล็อกอิน/session/TOTP/audit/overview
+  AdminData.gs            action ของ admin: ปี/เนื้อหา/ทีม/ช่องส่งไฟล์ (backup/purge จะเพิ่มใน G6)
   Db.gs                   helper อ่าน/เขียนชีต (plain-text, index, rollback)
 src/lib/api.js            เรียก GAS + errorText (แทน supabase.js)
 ```

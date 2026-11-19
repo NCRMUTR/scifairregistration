@@ -34,37 +34,26 @@ function pruneAttempts_() {
   }
 }
 
-/**
- * Check (team name, PIN) for the CURRENT edition. MUST be called inside withLock_().
- * Returns { ed, team } or throws fail_('locked') / fail_('invalid_credentials', …, { attempts_left }).
- */
-function verifyTeam_(nameEn, pin) {
-  const ed = currentEditionFresh_();
-  if (!ed) throw fail_('no_current_edition');
-  const key = nameKey_(nameEn);
-  if (!key) throw fail_('invalid_credentials'); // nothing to look up (and nothing worth counting)
-  const attemptKey = ed.year + ':' + key.slice(0, 120);
+// Attempt counters live in the lookup_attempts sheet: key '<year>:<team key>' for teams, 'admin' / 'totp' for admins.
+// All of these MUST be called inside withLock_().
+
+function attemptGet_(key) {
+  return rows_('lookup_attempts').filter(function (r) { return r.key === key; })[0] || null;
+}
+
+function attemptLocked_(att) {
+  const until = att ? time_(att.locked_until) : null;
+  return until !== null && until > Date.now();
+}
+
+/** Record one failure; returns the number of failures in the current window (>= MAX_PIN_FAILS means now locked). */
+function attemptFail_(key, att) {
   const now = Date.now();
-
-  const att = rows_('lookup_attempts').filter(function (r) { return r.key === attemptKey; })[0] || null;
-  if (att) {
-    const until = time_(att.locked_until);
-    if (until !== null && until > now) throw fail_('locked');
-  }
-
-  const team = rows_('teams').filter(function (t) { return t.edition_id === ed.id && t.name_en_key === key; })[0] || null;
-  const pinOk = !!team && !!team.pin_hash && typeof pin === 'string' && RE_PIN.test(pin) && pinHash_(team.id, pin) === team.pin_hash;
-  if (pinOk) {
-    if (att) deleteRow_('lookup_attempts', att._row);
-    return { ed: ed, team: team };
-  }
-
-  // Same path whether the team exists or not.
   const start = att ? time_(att.window_start) : null;
   const fresh = !att || start === null || now - start > PIN_LOCK_MS;
   const fails = fresh ? 1 : int_(att.fails, 0) + 1;
   const row = {
-    key: attemptKey,
+    key: key,
     fails: fails,
     window_start: fresh ? new Date(now).toISOString() : att.window_start,
     locked_until: fails >= MAX_PIN_FAILS ? new Date(now + PIN_LOCK_MS).toISOString() : '',
@@ -72,6 +61,35 @@ function verifyTeam_(nameEn, pin) {
   if (att) update_('lookup_attempts', att._row, row);
   else append_('lookup_attempts', row);
   pruneAttempts_();
+  return fails;
+}
+
+function attemptClear_(att) {
+  if (att) deleteRow_('lookup_attempts', att._row);
+}
+
+/**
+ * Check (team name, PIN) for the CURRENT edition. MUST be called inside withLock_().
+ * Returns { ed, team } or throws fail_('locked') / fail_('invalid_credentials', …, { attempts_left }).
+ * "Team does not exist" and "wrong PIN" take the same path.
+ */
+function verifyTeam_(nameEn, pin) {
+  const ed = currentEditionFresh_();
+  if (!ed) throw fail_('no_current_edition');
+  const key = nameKey_(nameEn);
+  if (!key) throw fail_('invalid_credentials'); // nothing to look up (and nothing worth counting)
+  const attemptKey = ed.year + ':' + key.slice(0, 120);
+
+  const att = attemptGet_(attemptKey);
+  if (attemptLocked_(att)) throw fail_('locked');
+
+  const team = rows_('teams').filter(function (t) { return t.edition_id === ed.id && t.name_en_key === key; })[0] || null;
+  const pinOk = !!team && !!team.pin_hash && typeof pin === 'string' && RE_PIN.test(pin) && pinHash_(team.id, pin) === team.pin_hash;
+  if (pinOk) {
+    attemptClear_(att);
+    return { ed: ed, team: team };
+  }
+  const fails = attemptFail_(attemptKey, att);
   if (fails >= MAX_PIN_FAILS) throw fail_('locked');
   throw fail_('invalid_credentials', '', { attempts_left: MAX_PIN_FAILS - fails });
 }
@@ -204,7 +222,12 @@ function prepareUpload_(req) {
   });
 
   const storedName = ctx.slotId + '_' + Date.now() + '_' + safeFileName_(fileName, ext);
-  const mime = typeof req.mime === 'string' && /^[A-Za-z0-9.+\/-]{1,100}$/.test(req.mime) ? req.mime : 'application/octet-stream';
+  return { upload_url: resumableSession_(ctx.folderId, storedName, req.mime, size, req.origin) };
+}
+
+/** Ask Drive for a resumable upload session in `folderId`; the browser PUTs the file to the returned URL. */
+function resumableSession_(folderId, storedName, mimeIn, size, origin) {
+  const mime = typeof mimeIn === 'string' && /^[A-Za-z0-9.+\/-]{1,100}$/.test(mimeIn) ? mimeIn : 'application/octet-stream';
   const res = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,size', {
     method: 'post',
     contentType: 'application/json; charset=UTF-8',
@@ -212,9 +235,9 @@ function prepareUpload_(req) {
       Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
       'X-Upload-Content-Type': mime,
       'X-Upload-Content-Length': String(Math.floor(size)),
-      Origin: req.origin, // makes Google answer the browser's PUT with CORS headers for this origin
+      Origin: origin, // makes Google answer the browser's PUT with CORS headers for this origin
     },
-    payload: JSON.stringify({ name: storedName, parents: [ctx.folderId] }),
+    payload: JSON.stringify({ name: storedName, parents: [folderId] }),
     muteHttpExceptions: true,
   });
   if (res.getResponseCode() !== 200) {
@@ -224,7 +247,7 @@ function prepareUpload_(req) {
   const headers = res.getAllHeaders();
   const location = headers['Location'] || headers['location'];
   if (!location) throw fail_('upload_failed');
-  return { upload_url: location };
+  return location;
 }
 
 /**

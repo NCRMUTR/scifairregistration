@@ -54,6 +54,35 @@ function studentIdTaken_(req) {
 }
 
 /**
+ * Validate and trim the team data shared by submit_team and the admin's "edit on behalf".
+ * Throws invalid_members / invalid_advisors / invalid_input. Returns { nameTh, nameEn, members, advisors }.
+ */
+function cleanApplication_(req, maxMembers) {
+  if (!Array.isArray(req.members) || req.members.length < 1 || req.members.length > maxMembers) throw fail_('invalid_members');
+  if (!Array.isArray(req.advisors) || req.advisors.length < 1 || req.advisors.length > 50) throw fail_('invalid_advisors');
+
+  const nameTh = text_(req.name_th, 120);
+  const nameEn = text_(req.name_en, 120);
+  if (!nameTh || !nameEn) throw fail_('invalid_input');
+
+  const members = req.members.map(function (m) {
+    m = m || {};
+    return { student_id: typeof m.student_id === 'string' ? m.student_id : '', full_name: text_(m.full_name, 120), phone: typeof m.phone === 'string' ? m.phone : '' };
+  });
+  const advisors = req.advisors.map(function (a) {
+    a = a || {};
+    return { full_name: text_(a.full_name, 120), department: text_(a.department, 120), faculty: text_(a.faculty, 120) };
+  });
+  members.forEach(function (m) {
+    if (!RE_STUDENT_ID.test(m.student_id) || !m.full_name || !RE_PHONE.test(m.phone)) throw fail_('invalid_input');
+  });
+  advisors.forEach(function (a) {
+    if (!a.full_name || !a.department || !a.faculty) throw fail_('invalid_input');
+  });
+  return { nameTh: nameTh, nameEn: nameEn, members: members, advisors: advisors };
+}
+
+/**
  * Create the whole application. req: { name_th, name_en, pin, members:[{student_id,full_name,phone}],
  * advisors:[{full_name,department,faculty}], ack:true, pdpa:true }  ->  { ref_no, created_at }
  */
@@ -68,28 +97,11 @@ function submitTeam_(req) {
     if (req.ack !== true || req.pdpa !== true) throw fail_('consent_required');
     if (typeof req.pin !== 'string' || !RE_PIN.test(req.pin)) throw fail_('invalid_pin');
 
-    const maxMembers = int_(ed.max_members, 7);
-    if (!Array.isArray(req.members) || req.members.length < 1 || req.members.length > maxMembers) throw fail_('invalid_members');
-    if (!Array.isArray(req.advisors) || req.advisors.length < 1 || req.advisors.length > 50) throw fail_('invalid_advisors');
-
-    const nameTh = text_(req.name_th, 120);
-    const nameEn = text_(req.name_en, 120);
-    if (!nameTh || !nameEn) throw fail_('invalid_input');
-
-    const members = req.members.map(function (m) {
-      m = m || {};
-      return { student_id: typeof m.student_id === 'string' ? m.student_id : '', full_name: text_(m.full_name, 120), phone: typeof m.phone === 'string' ? m.phone : '' };
-    });
-    const advisors = req.advisors.map(function (a) {
-      a = a || {};
-      return { full_name: text_(a.full_name, 120), department: text_(a.department, 120), faculty: text_(a.faculty, 120) };
-    });
-    members.forEach(function (m) {
-      if (!RE_STUDENT_ID.test(m.student_id) || !m.full_name || !RE_PHONE.test(m.phone)) throw fail_('invalid_input');
-    });
-    advisors.forEach(function (a) {
-      if (!a.full_name || !a.department || !a.faculty) throw fail_('invalid_input');
-    });
+    const clean = cleanApplication_(req, int_(ed.max_members, 7));
+    const nameTh = clean.nameTh;
+    const nameEn = clean.nameEn;
+    const members = clean.members;
+    const advisors = clean.advisors;
 
     // Uniqueness — inside the lock, from fresh reads.
     const seen = {};

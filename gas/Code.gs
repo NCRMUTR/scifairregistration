@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g3';
+const VERSION = 'g4';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -45,6 +45,32 @@ const ACTIONS = {
   prepare_upload: function (req) { return prepareUpload_(req); },
   confirm_upload: function (req) { return confirmUpload_(req); },
   send_message: function (req) { return sendMessage_(req); },
+
+  // ── admin (every one except admin_login needs req.session) ──
+  admin_login: function (req) { return adminLogin_(req); },
+  admin_logout: function (req) { return adminLogout_(req); },
+  admin_me: function (req) { return adminMe_(req); },
+  admin_change_password: function (req) { return adminChangePassword_(req); },
+  admin_totp_begin: function (req) { return adminTotpBegin_(req); },
+  admin_totp_confirm: function (req) { return adminTotpConfirm_(req); },
+  admin_overview: function (req) { return adminOverview_(req); },
+  admin_editions: function (req) { return adminEditions_(req); },
+  admin_create_edition: function (req) { return adminCreateEdition_(req); },
+  admin_set_current: function (req) { return adminSetCurrent_(req); },
+  admin_save_edition: function (req) { return adminSaveEdition_(req); },
+  admin_settings: function (req) { return adminSettings_(req); },
+  admin_save_settings: function (req) { return adminSaveSettings_(req); },
+  admin_prepare_asset: function (req) { return adminPrepareAsset_(req); },
+  admin_confirm_asset: function (req) { return adminConfirmAsset_(req); },
+  admin_teams: function (req) { return adminTeams_(req); },
+  admin_set_team_status: function (req) { return adminSetTeamStatus_(req); },
+  admin_mark_read: function (req) { return adminMarkRead_(req); },
+  admin_reset_pin: function (req) { return adminResetPin_(req); },
+  admin_update_team: function (req) { return adminUpdateTeam_(req); },
+  admin_delete_team: function (req) { return adminDeleteTeam_(req); },
+  admin_slots: function (req) { return adminSlots_(req); },
+  admin_save_slot: function (req) { return adminSaveSlot_(req); },
+  admin_delete_slot: function (req) { return adminDeleteSlot_(req); },
 };
 
 // ───────────── shared helpers used by every write action ─────────────

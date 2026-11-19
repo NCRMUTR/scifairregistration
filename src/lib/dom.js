@@ -37,3 +37,9 @@ export function append(parent, children) {
   }
   return parent;
 }
+
+/** Replace everything inside `parent`. Unlike parent.replaceChildren(...), null/undefined/false children are skipped (not printed). */
+export function replace(parent, ...children) {
+  parent.replaceChildren();
+  return append(parent, children);
+}

@@ -2,7 +2,7 @@
 // The PIN is kept only in this closure (never in storage, URL or DOM) and is re-sent with each action, because the
 // server re-verifies (team, PIN) — and counts failures — on every call.
 import { h } from '../lib/dom.js';
-import { api, messageFor } from '../lib/api.js';
+import { api, messageFor, putToDrive } from '../lib/api.js';
 import { loadSite, setting } from '../lib/site.js';
 import { mountShell } from '../lib/layout.js';
 import { formatThaiDateTime } from '../lib/format.js';
@@ -23,30 +23,6 @@ function formatSize(bytes) {
 function fileExt(name) {
   const m = /\.([A-Za-z0-9]{1,10})$/.exec(name || '');
   return m ? m[1].toLowerCase() : '';
-}
-
-/** PUT the file straight to the Google upload URL (XHR so we get progress). Resolves with the new Drive file id. */
-function putToDrive(uploadUrl, file, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', uploadUrl);
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(e.loaded / e.total);
-    };
-    xhr.onerror = () => reject(new Error('network'));
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const id = JSON.parse(xhr.responseText)?.id;
-          if (id) return resolve(id);
-        } catch {
-          /* fall through */
-        }
-      }
-      reject(new Error(`drive ${xhr.status}`));
-    };
-    xhr.send(file);
-  });
 }
 
 export async function render(root) {

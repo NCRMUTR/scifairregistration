@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g6';
+const VERSION = 'g7';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -17,8 +17,9 @@ function doPost(e) {
   try {
     const req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     action = typeof req.action === 'string' ? req.action : '';
-    const handler = ACTIONS[action];
-    if (!handler) return reply_({ ok: false, reason: 'unknown_action' });
+    // Own keys only: 'constructor', 'toString', '__proto__' … are inherited from Object and must not be callable.
+    const handler = Object.prototype.hasOwnProperty.call(ACTIONS, action) ? ACTIONS[action] : null;
+    if (typeof handler !== 'function') return reply_({ ok: false, reason: 'unknown_action' });
     return reply_({ ok: true, data: handler(req) });
   } catch (err) {
     if (err && err.reason) return reply_(Object.assign({}, err.extra || {}, { ok: false, reason: err.reason }));

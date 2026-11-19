@@ -46,7 +46,7 @@ A Thai-language, conference-style website for a student pitching contest that is
 
 ## Backup and reset (safety-critical)
 - **Backup** (done by GAS into the private Drive folder `backups`): copy of the spreadsheet + one CSV per participant sheet + a ZIP of the uploaded files; then record `last_backup_at` and `backup_log`; return the Drive link. Do NOT send backups anywhere automatically; the repo and Pages are public.
-- **Reset** via the `admin_purge` action only. Modes: `anonymize` (keep team name, ref_no, status, member count; delete personal data + files; PIN unusable) and `delete` (remove everything of that edition). Guards, all enforced server-side: valid admin session logged in ≤ 10 min ago · password re-entered + TOTP code · confirm text `PURGE <year>` · backup ≤ 24 h · script lock held. Files are deleted **permanently** (Advanced Drive Service), not just trashed. Gallery, edition settings and slot definitions are never touched. UI must disable the button until the guards look satisfied and show the result (counts, files removed/failed).
+- **Reset** via the `admin_purge` action only. Modes: `anonymize` (keep team name, ref_no, status, member count; delete personal data + files; PIN unusable) and `delete` (remove everything of that edition). Guards, all enforced server-side: valid admin session logged in ≤ 10 min ago · password re-entered + TOTP code · confirm text `PURGE <year>` · backup ≤ 24 h · script lock held. Files are deleted **permanently** (Drive REST API `DELETE` via `UrlFetchApp`, no Advanced Service needed), not just trashed. Gallery, edition settings and slot definitions are never touched. UI must disable the button until the guards look satisfied and show the result (counts, files removed/failed).
 - MFA is our own TOTP (secret in Script Properties), since GAS has no `aal2`. Admin passwords must be ≥ 12 characters and are stored only as HMAC.
 
 ## Visual design (from the approved mockup)
@@ -54,6 +54,7 @@ Ink `#0F172A`, page `#F4F6FA`, navy `#0B1D3F` (hero/footer, dot pattern), primar
 
 ## Commands
 ```
+npm test                       # validators + the real gas/*.gs rules on an in-memory Sheets/Drive double (test/gas/)
 npm install
 cp .env.example .env.local     # fill in VITE_GAS_URL
 npm run dev

@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Admin — Sci-Tech Pitching</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#0F172A;background:#F4F6FA}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+button{font-family:inherit}
+.inp{font-family:inherit;font-size:16px;min-height:44px;padding:0 12px;border-radius:10px;background:#FFFFFF;color:#0F172A;width:100%;box-sizing:border-box;border:1px solid #64748B}
+.inp:focus-visible,.btn:focus-visible,a:focus-visible,textarea:focus-visible,.rad:focus-visible{outline:3px solid #FBBF24;outline-offset:2px}
+.rad{width:22px;height:22px;flex:none;margin:2px 0 0}
+.card{background:#FFFFFF;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.pbtn{min-height:44px;padding:0 20px;border:2px solid #1D4ED8;background:#FFFFFF;color:#1D4ED8;border-radius:10px;font-weight:600;cursor:pointer}
+.sbtn{min-height:48px;padding:0 28px;border:0;border-radius:10px;background:#1D4ED8;color:#FFFFFF;font-weight:700;cursor:pointer}
+</style>
+</helmet>
+<div style="min-height: 1500px; display: flex; flex-direction: column; background: #F4F6FA">
+
+<sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px">
+<div style="background: #FFFFFF; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+<div style="font-size: 13px; color: #475569">Sci-Tech Pitching</div>
+<h1 style="margin: 0; font-size: 28px">เข้าสู่ระบบ Admin</h1>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">อีเมล
+<input class="inp" type="email" value="admin@example.ac.th">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">รหัสผ่าน
+<input class="inp" type="password" value="password">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">รหัสยืนยัน 2 ขั้นตอน (6 หลัก)
+<input class="inp" type="text" inputmode="numeric" value="123456">
+</label>
+<button class="btn sbtn" onClick="{{ login }}" style="min-height: 52px; border-radius: 12px; font-size: 17px">เข้าสู่ระบบ</button>
+<a href="Main.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 14px">← กลับหน้าหลัก</a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="background: #0B1D3F; color: #FFFFFF; padding: 12px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<div style="font-weight: 700">Admin · Sci-Tech Pitching</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 14px">
+<span style="background: #1E3A8A; border-radius: 999px; padding: 4px 14px">ปีที่กำลังจัด: {{ currentYear }}</span>
+<button class="btn" onClick="{{ logout }}" style="min-height: 44px; padding: 0 16px; border: 1px solid #94A3B8; background: transparent; color: #FFFFFF; border-radius: 10px; cursor: pointer">ออกจากระบบ</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 16px 32px 0; background: #FFFFFF; border-bottom: 1px solid #E2E8F0">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="7">
+<button class="btn" onClick="{{ t.go }}" style="min-height: 48px; padding: 0 16px; border: 0; border-bottom: 4px solid {{ t.line }}; background: transparent; color: {{ t.color }}; font-weight: {{ t.weight }}; font-size: 15px; cursor: pointer">{{ t.label }}</button>
+</sc-for>
+</div>
+
+<div style="max-width: 1100px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+
+<!-- ภาพรวม -->
+<sc-if value="{{ tabOverview }}" hint-placeholder-val="{{ true }}">
+<h2 style="margin: 0; font-size: 26px">ภาพรวม ปี {{ currentYear }}</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 200px; background: #FFFFFF; border-radius: 14px; padding: 20px"><div style="font-size: 14px; color: #475569">ทีมที่สมัครแล้ว</div><div style="font-size: 40px; font-weight: 700">{{ totalTeams }}</div></div>
+<div style="flex: 1 1 200px; background: #FEF3C7; border-radius: 14px; padding: 20px"><div style="font-size: 14px; color: #7A4B00">รอตรวจสอบ</div><div style="font-size: 40px; font-weight: 700; color: #7A4B00">{{ pendingTeams }}</div></div>
+<div style="flex: 1 1 200px; background: #ECFDF3; border-radius: 14px; padding: 20px"><div style="font-size: 14px; color: #067647">การสมัครสำเร็จ</div><div style="font-size: 40px; font-weight: 700; color: #067647">{{ doneTeams }}</div></div>
+</div>
+<div class="card">
+<div style="font-weight: 700">การรับสมัคร</div>
+<div style="font-size: 18px; font-weight: 700; color: {{ regColor }}">{{ regStatusText }}</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6">{{ regDetail }}</div>
+<button class="btn pbtn" onClick="{{ goEditions }}" style="align-self: flex-start">ตั้งช่วงเวลารับสมัคร</button>
+</div>
+<div class="card">
+<div style="font-weight: 700">การสำรองข้อมูล</div>
+<div style="font-size: 15px; color: {{ backupColor }}; font-weight: 600">{{ backupText }}</div>
+<button class="btn pbtn" onClick="{{ goBackup }}" style="align-self: flex-start">ไปที่สำรอง/รีเซ็ต</button>
+</div>
+</sc-if>
+
+<!-- ปี/รอบการจัด -->
+<sc-if value="{{ tabEditions }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-size: 26px">ปี/รอบการจัด</h2>
+<button class="btn sbtn" onClick="{{ toggleNew }}">+ สร้างปีใหม่</button>
+</div>
+
+<sc-if value="{{ showNew }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="border: 2px solid #1D4ED8">
+<div style="font-weight: 700; font-size: 18px">สร้างรอบการจัดปีใหม่</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; max-width: 180px">ปี (ค.ศ.)
+<input class="inp" type="text" inputmode="numeric" value="{{ newYear }}" onChange="{{ setNewYear }}">
+</label>
+<label style="display: flex; gap: 10px; align-items: center; min-height: 44px; cursor: pointer">
+<input class="rad" type="checkbox" checked="{{ copyPrev }}" onChange="{{ toggleCopy }}">
+<span>คัดลอกข้อความและช่องส่งไฟล์จากปีล่าสุด</span>
+</label>
+</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6">ปีใหม่เริ่มเป็น “ร่าง” (ยังไม่แสดงในเว็บ) และ “ปิดรับสมัคร” ไว้ก่อน จนกว่าจะตั้งช่วงเวลาและกด “ตั้งเป็นปีปัจจุบัน” — ข้อมูลทีมของปีเก่าไม่ถูกแตะ</div>
+<div style="display: flex; gap: 12px"><button class="btn sbtn" onClick="{{ createYear }}">สร้าง</button><button class="btn pbtn" onClick="{{ toggleNew }}">ยกเลิก</button></div>
+</div>
+</sc-if>
+
+<div class="card" style="padding: 8px; overflow-x: auto">
+<div style="min-width: 640px; display: flex; flex-direction: column">
+<div style="display: flex; gap: 12px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #E2E8F0"><div style="flex: 1">ปี</div><div style="flex: 2">ชื่อ</div><div style="flex: 1.5">สถานะ</div><div style="flex: 1.5">การจัดการ</div></div>
+<sc-for list="{{ editionRows }}" as="e" hint-placeholder-count="1">
+<div style="display: flex; gap: 12px; padding: 12px 14px; align-items: center; border-bottom: 1px solid #F1F5F9">
+<div style="flex: 1; font-weight: 700; font-size: 18px">{{ e.year }}</div>
+<div style="flex: 2">{{ e.title }}</div>
+<div style="flex: 1.5"><span style="font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 12px; background: {{ e.bg }}; color: {{ e.fg }}">{{ e.status }}</span></div>
+<div style="flex: 1.5"><button class="btn" onClick="{{ e.act }}" style="min-height: 44px; padding: 0 14px; border: 0; background: #E2E8F0; border-radius: 10px; cursor: pointer; font-size: 14px; color: #0F172A">{{ e.actText }}</button></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div class="card">
+<div style="font-size: 18px; font-weight: 700">ช่วงเวลารับสมัคร — ปี {{ currentYear }}</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+<label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; line-height: 1.5">
+<input class="rad" type="radio" name="regmode" checked="{{ m.checked }}" onChange="{{ m.pick }}">
+<span><b>{{ m.title }}</b><br><span style="font-size: 14px; color: #475569">{{ m.desc }}</span></span>
+</label>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<label style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">เปิดรับสมัคร
+<input class="inp" type="datetime-local" value="2026-12-01T09:00">
+</label>
+<label style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ปิดรับสมัคร
+<input class="inp" type="datetime-local" value="2026-12-31T23:59">
+</label>
+</div>
+<div style="font-size: 13px; color: #475569; line-height: 1.6">เวลาประเทศไทย (UTC+7) · ค่าในช่องเป็นตัวอย่าง · เซิร์ฟเวอร์ตัดสินด้วยนาฬิกาของเซิร์ฟเวอร์เอง ไม่ใช่เวลาในเครื่องผู้สมัคร · โหมด “ตามช่วงเวลา” ที่ยังไม่ใส่วันเปิด = ปิดอยู่</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<label style="flex: 1 1 200px; max-width: 260px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">จำนวนสมาชิกสูงสุดต่อทีม
+<input class="inp" type="text" inputmode="numeric" value="7">
+</label>
+</div>
+<div style="font-weight: 600">กำหนดการสำคัญที่แสดงบนหน้าหลัก</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><input class="inp" aria-label="หัวข้อกำหนดการ 1" type="text" value="เปิดรับสมัคร" style="flex: 2 1 220px; width: auto"><input class="inp" aria-label="วันที่ 1" type="date" value="2026-12-01" style="flex: 1 1 180px; width: auto"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><input class="inp" aria-label="หัวข้อกำหนดการ 2" type="text" value="ปิดรับสมัคร" style="flex: 2 1 220px; width: auto"><input class="inp" aria-label="วันที่ 2" type="date" value="2026-12-31" style="flex: 1 1 180px; width: auto"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><input class="inp" aria-label="หัวข้อกำหนดการ 3" type="text" value="วันประกวด" style="flex: 2 1 220px; width: auto"><input class="inp" aria-label="วันที่ 3" type="date" value="2027-01-20" style="flex: 1 1 180px; width: auto"></div>
+</div>
+<button class="btn sbtn" style="align-self: flex-start">บันทึก</button>
+</div>
+
+<div class="card" style="background: #F8FAFC; border: 1px dashed #94A3B8">
+<div style="font-weight: 700">ขั้นตอนเริ่มปีใหม่ (ใช้เว็บเดิมต่อทุกปี)</div>
+<ol style="margin: 0; padding-left: 22px; line-height: 1.9; font-size: 15px">
+<li>จบงาน → ไปแท็บ “สำรอง/รีเซ็ต” แล้วสำรองข้อมูลปีเก่า</li>
+<li>รีเซ็ตข้อมูลผู้เข้าร่วมปีเก่า (ตามนโยบาย PDPA) — ภาพกิจกรรมยังอยู่</li>
+<li>กด “สร้างปีใหม่” (คัดลอกข้อความจากปีเดิม)</li>
+<li>ตั้งช่วงรับสมัครและกำหนดการ แก้ PDF/พื้นหลังของปีใหม่</li>
+<li>กด “ตั้งเป็นปีปัจจุบัน” → หน้าหลักและฟอร์มสมัครเปลี่ยนเป็นปีใหม่ทันที</li>
+</ol>
+</div>
+</sc-if>
+
+<!-- เนื้อหาเว็บ -->
+<sc-if value="{{ tabContent }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0; font-size: 26px">เนื้อหาหน้าเว็บ</h2>
+<div class="card">
+<div style="font-size: 18px; font-weight: 700">ทั้งเว็บ (ใช้ทุกปี)</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 500">โลโก้</div><div style="border: 2px dashed #94A3B8; border-radius: 10px; height: 80px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 14px">ST · PNG/SVG</div><button class="btn pbtn">อัปโหลดโลโก้</button></div>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ชื่อเว็บ
+<input class="inp" type="text" value="Sci-Tech Pitching">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ข้อความท้ายหน้า (Footer)
+<textarea rows="2" style="font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #64748B; border-radius: 10px; box-sizing: border-box; width: 100%">[หน่วยงานผู้จัด] · [อีเมลติดต่อ] · [เบอร์โทร]</textarea>
+</label>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ปุ่มรายละเอียดโครงการ<input class="inp" type="text" value="รายละเอียดโครงการ"></label>
+<label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ปุ่มสมัคร<input class="inp" type="text" value="สมัคร"></label>
+<label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ปุ่ม Submit<input class="inp" type="text" value="Submit"></label>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ข้อความแนะนำหน้าภาพกิจกรรม
+<input class="inp" type="text" value="ภาพบรรยากาศการจัดงานของแต่ละปี">
+</label>
+</div>
+<div class="card">
+<div style="font-size: 18px; font-weight: 700">เฉพาะปี {{ currentYear }}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 500">ภาพพื้นหลังหน้าหลัก</div><div style="border: 2px dashed #94A3B8; border-radius: 10px; height: 80px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 14px">ยังไม่ได้อัปโหลด</div><button class="btn pbtn">อัปโหลดภาพพื้นหลัง</button></div>
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 500">PDF คำชี้แจงโครงการ (pop up)</div><div style="border: 2px dashed #94A3B8; border-radius: 10px; height: 80px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 14px">คำชี้แจง-{{ currentYear }}.pdf</div><button class="btn pbtn">อัปโหลด PDF ใหม่</button></div>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ชื่อโครงการประจำปี
+<input class="inp" type="text" value="Sci-Tech Pitching 2026">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">รายละเอียดโครงการโดยย่อ
+<textarea rows="3" style="font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #64748B; border-radius: 10px; box-sizing: border-box; width: 100%">เปิดรับสมัครทีมนักศึกษาเพื่อเข้าร่วมเวทีนำเสนอแนวคิดและโครงงานต่อคณะกรรมการ ทีมละไม่เกิน 7 คน พร้อมอาจารย์ที่ปรึกษา</textarea>
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ข้อความช่องรับทราบ
+<input class="inp" type="text" value="ข้าพเจ้าได้อ่านรายละเอียดโครงการและเงื่อนไขการประกวดแล้ว และเข้าใจครบถ้วน">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ข้อความช่อง PDPA
+<textarea rows="2" style="font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #64748B; border-radius: 10px; box-sizing: border-box; width: 100%">ข้าพเจ้ายินยอมให้เก็บและใช้ข้อมูลส่วนบุคคลของทีมเพื่อการคัดเลือก ติดต่อ และดำเนินการประกวดนี้เท่านั้น</textarea>
+</label>
+</div>
+<button class="btn sbtn" style="align-self: flex-start; min-height: 52px; padding: 0 36px">บันทึกการเปลี่ยนแปลง</button>
+</sc-if>
+
+<!-- รายชื่อทีม -->
+<sc-if value="{{ tabTeams }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-size: 26px">รายชื่อทีม ปี {{ currentYear }}</h2>
+<button class="btn pbtn">ส่งออก CSV</button>
+</div>
+<div class="card" style="padding: 8px; overflow-x: auto">
+<div style="min-width: 760px; display: flex; flex-direction: column">
+<div style="display: flex; gap: 12px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #E2E8F0"><div style="flex: 2">ชื่อทีม</div><div style="flex: 1">สมาชิก</div><div style="flex: 2">อาจารย์ที่ปรึกษา</div><div style="flex: 1.4">สถานะ</div><div style="flex: 1.4">การจัดการ</div></div>
+<sc-for list="{{ teams }}" as="t" hint-placeholder-count="3">
+<div style="display: flex; gap: 12px; padding: 12px 14px; align-items: center; border-bottom: 1px solid #F1F5F9; font-size: 15px">
+<div style="flex: 2"><div style="font-weight: 600">{{ t.th }}</div><div style="font-size: 13px; color: #475569">{{ t.en }}</div></div>
+<div style="flex: 1">{{ t.members }}</div>
+<div style="flex: 2">{{ t.advisor }}</div>
+<div style="flex: 1.4"><span style="font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 12px; background: {{ t.bg }}; color: {{ t.fg }}">{{ t.status }}</span></div>
+<div style="flex: 1.4"><button class="btn" onClick="{{ t.toggle }}" style="min-height: 44px; padding: 0 12px; border: 0; background: #E2E8F0; border-radius: 10px; cursor: pointer; font-size: 14px; color: #0F172A">{{ t.action }}</button></div>
+</div>
+</sc-for>
+<sc-if value="{{ noTeams }}" hint-placeholder-val="{{ false }}">
+<div style="padding: 28px 14px; color: #475569">ไม่มีข้อมูลทีมในปีนี้ (ถูกรีเซ็ตแล้ว)</div>
+</sc-if>
+</div>
+</div>
+<div style="font-size: 13px; color: #475569">แถวตัวอย่าง — การจัดการจริงมีดูรายละเอียดทีม ไฟล์ที่ส่ง ข้อความถึงคณะกรรมการ และรีเซ็ต PIN</div>
+</sc-if>
+
+<!-- ช่องส่งไฟล์ -->
+<sc-if value="{{ tabSlots }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-size: 26px">ช่องส่งไฟล์ — ปี {{ currentYear }}</h2>
+<button class="btn sbtn">+ เพิ่มช่องส่งไฟล์</button>
+</div>
+<sc-for list="{{ slotRows }}" as="s" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border-radius: 14px; padding: 18px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-weight: 600">{{ s.title }}</div>
+<div style="font-size: 13px; color: #475569">{{ s.rule }}</div>
+</div>
+<div style="font-size: 14px; font-weight: 600; color: {{ s.color }}">{{ s.state }}</div>
+<button class="btn pbtn" onClick="{{ s.toggle }}">{{ s.btn }}</button>
+</div>
+</sc-for>
+</sc-if>
+
+<!-- ภาพกิจกรรม -->
+<sc-if value="{{ tabGallery }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-size: 26px">ภาพกิจกรรม</h2>
+<button class="btn sbtn" onClick="{{ toggleAlbum }}">+ สร้างอัลบั้ม</button>
+</div>
+
+<sc-if value="{{ showAlbum }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="border: 2px solid #1D4ED8">
+<div style="font-weight: 700; font-size: 18px">อัลบั้มใหม่</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<label style="flex: 2 1 260px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ชื่ออัลบั้ม<input class="inp" type="text" value="วันประกวดรอบสุดท้าย"></label>
+<label style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">ปี<select class="inp"><option>2026</option></select></label>
+<label style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-weight: 500">วันที่จัดงาน<input class="inp" type="date"></label>
+</div>
+<div style="border: 2px dashed #94A3B8; border-radius: 12px; padding: 28px; text-align: center; background: #F8FAFC; display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="font-weight: 600">ลากภาพมาวาง หรือเลือกได้หลายไฟล์ (JPG/PNG/WebP)</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6; max-width: 560px">ระบบย่อภาพในเบราว์เซอร์ก่อนอัปโหลด (ด้านยาวไม่เกิน 2000 px + ภาพย่อ 480 px) เพื่อประหยัดพื้นที่จัดเก็บ</div>
+<button class="btn pbtn" onClick="{{ fakeUpload }}">เลือกไฟล์ (จำลองอัปโหลด 24 ภาพ)</button>
+<sc-if value="{{ uploading }}" hint-placeholder-val="{{ false }}">
+<div style="width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 6px">
+<div style="height: 10px; border-radius: 999px; background: #E2E8F0; overflow: hidden"><div style="height: 10px; width: {{ uploadPct }}%; background: #1D4ED8"></div></div>
+<div style="font-size: 13px; color: #334155">{{ uploadText }}</div>
+</div>
+</sc-if>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">หรือใส่ลิงก์อัลบั้มภายนอก (https://… เช่น Google Photos) — ไม่บังคับ
+<input class="inp" type="text" placeholder="https://">
+</label>
+<div style="display: flex; gap: 12px"><button class="btn sbtn" onClick="{{ toggleAlbum }}">บันทึกอัลบั้ม</button><button class="btn pbtn" onClick="{{ toggleAlbum }}">ยกเลิก</button></div>
+</div>
+</sc-if>
+
+<div class="card" style="padding: 8px">
+<sc-for list="{{ albumRows }}" as="a" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; padding: 14px; align-items: center; border-bottom: 1px solid #F1F5F9">
+<div style="width: 72px; height: 54px; border-radius: 8px; background: {{ a.bg }}"></div>
+<div style="flex: 1 1 240px"><div style="font-weight: 600">{{ a.title }}</div><div style="font-size: 13px; color: #475569">{{ a.meta }}</div></div>
+<span style="font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 12px; background: {{ a.bg2 }}; color: {{ a.fg }}">{{ a.state }}</span>
+<button class="btn pbtn" onClick="{{ a.toggle }}">{{ a.btn }}</button>
+<button class="btn" style="min-height: 44px; padding: 0 14px; border: 0; background: #E2E8F0; border-radius: 10px; cursor: pointer; font-size: 14px; color: #0F172A">จัดการภาพ</button>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #475569; line-height: 1.6">อัลบั้มที่ยังไม่เผยแพร่จะไม่แสดงในเว็บ · ภาพกิจกรรมไม่ถูกลบเมื่อรีเซ็ตข้อมูลผู้เข้าร่วม · พื้นที่จัดเก็บของแพ็กเกจ Supabase มีจำกัด — อัลบั้มใหญ่ควรใช้ลิงก์ภายนอก</div>
+</sc-if>
+
+<!-- สำรอง/รีเซ็ต -->
+<sc-if value="{{ tabBackup }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0; font-size: 26px">สำรอง/รีเซ็ตข้อมูลผู้เข้าร่วม</h2>
+
+<div class="card">
+<div style="font-size: 18px; font-weight: 700">1. สำรองข้อมูล — ปี {{ currentYear }}</div>
+<div style="font-size: 15px; line-height: 1.7; color: #334155">สร้างไฟล์ ZIP ในเครื่องของคุณ ประกอบด้วย: ข้อมูลทีม สมาชิก อาจารย์ที่ปรึกษา ความยินยอม PDPA และข้อความ (ไฟล์ CSV เปิดใน Excel ได้ + JSON ฉบับสมบูรณ์) และไฟล์ทั้งหมดที่ทีมส่ง ไม่รวมภาพกิจกรรม</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+<button class="btn sbtn" onClick="{{ doBackup }}">สร้างไฟล์สำรอง (ZIP)</button>
+<div style="font-size: 15px; font-weight: 600; color: {{ backupColor }}">{{ backupText }}</div>
+</div>
+<sc-if value="{{ backedUp }}" hint-placeholder-val="{{ false }}">
+<div style="background: #ECFDF3; border: 1px solid #A6F4C5; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #067647; line-height: 1.6">ดาวน์โหลดแล้ว: backup-{{ currentYear }}-ST.zip (ทีม {{ backupTeams }} · สมาชิก {{ backupMembers }} · ไฟล์ 6)</div>
+</sc-if>
+<div style="font-size: 13px; color: #7A4B00; background: #FEF3C7; border-radius: 10px; padding: 10px 14px; line-height: 1.6">ไฟล์สำรองมีข้อมูลส่วนบุคคลของนักศึกษา — เก็บในที่จำกัดสิทธิ์/เข้ารหัส และลบตามนโยบาย PDPA ของมหาวิทยาลัย</div>
+</div>
+
+<div class="card" style="border: 2px solid #B42318">
+<div style="font-size: 18px; font-weight: 700; color: #B42318">2. รีเซ็ตข้อมูลผู้เข้าร่วม — ปี {{ currentYear }} (ย้อนกลับไม่ได้)</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ resetModes }}" as="r" hint-placeholder-count="2">
+<label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; line-height: 1.5">
+<input class="rad" type="radio" name="resetmode" checked="{{ r.checked }}" onChange="{{ r.pick }}">
+<span><b>{{ r.title }}</b><br><span style="font-size: 14px; color: #475569">{{ r.desc }}</span></span>
+</label>
+</sc-for>
+</div>
+<div style="font-size: 14px; color: #334155; line-height: 1.7"><b>ไม่ถูกแตะ:</b> ภาพกิจกรรม · ข้อความและตั้งค่าของปี · นิยามช่องส่งไฟล์ · รอบการจัดปีอื่น</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<div style="color: {{ okBackupColor }}; font-weight: 600">{{ okBackupText }}</div>
+<div style="color: #067647; font-weight: 600">✓ เข้าสู่ระบบด้วย 2 ขั้นตอนแล้ว (MFA)</div>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; max-width: 360px">พิมพ์ <b>PURGE {{ currentYear }}</b> เพื่อยืนยัน
+<input class="inp" type="text" value="{{ confirmText }}" onChange="{{ setConfirm }}" style="border: 2px solid #B42318">
+</label>
+<button class="btn" onClick="{{ doReset }}" disabled="{{ resetDisabled }}" style="align-self: flex-start; min-height: 52px; padding: 0 32px; border: 0; border-radius: 10px; font-weight: 700; font-size: 16px; color: #FFFFFF; background: {{ resetBg }}; cursor: {{ resetCursor }}">รีเซ็ตข้อมูลผู้เข้าร่วม</button>
+<sc-if value="{{ purgedText }}" hint-placeholder-val="{{ false }}">
+<div style="background: #ECFDF3; border: 1px solid #A6F4C5; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #067647; line-height: 1.6">{{ purgedText }}</div>
+</sc-if>
+</div>
+
+<div style="font-size: 13px; color: #475569; line-height: 1.7">นอกเหนือจากไฟล์สำรองนี้ ฐานข้อมูลของ Supabase มีระบบสำรองระดับแพลตฟอร์มตามแพ็กเกจที่ใช้ (ตรวจเงื่อนไขในหน้า Supabase) · ระบบบันทึกประวัติการรีเซ็ตและการสำรองไว้ใน audit log</div>
+</sc-if>
+
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  state = {
+    auth: false, tab: 'overview',
+    editions: [{ year: 2026, current: true, status: 'active' }],
+    showNew: false, newYear: '2027', copyPrev: true,
+    regMode: 'auto',
+    done: { t1: false, t2: true, t3: false },
+    slotOn: { s1: true, s2: true, s3: false },
+    albumPub: { a1: true, a2: true, a3: false },
+    showAlbum: false, uploading: false, pct: 0,
+    backedUp: false, resetMode: 'anonymize', confirm: '', purged: null
+  };
+
+  renderVals() {
+    const s = this.state;
+    const cur = s.editions.find((e) => e.current);
+    const year = cur ? cur.year : 2026;
+    const go = (id) => () => this.setState({ tab: id });
+    const tabDefs = [
+      ['overview', 'ภาพรวม'], ['editions', 'ปี/รอบการจัด'], ['content', 'เนื้อหาหน้าเว็บ'], ['teams', 'รายชื่อทีม'],
+      ['slots', 'ช่องส่งไฟล์'], ['gallery', 'ภาพกิจกรรม'], ['backup', 'สำรอง/รีเซ็ต']
+    ];
+    const tabs = tabDefs.map(([id, label]) => ({
+      label, go: go(id),
+      line: s.tab === id ? '#1D4ED8' : 'transparent',
+      color: s.tab === id ? '#1D4ED8' : '#334155',
+      weight: s.tab === id ? 700 : 500
+    }));
+
+    // teams (sample) + effect of a purge
+    const teamDefs = [
+      { id: 't1', th: 'ทีมตัวอย่าง ก', en: 'Sample Team A', members: 4, advisor: 'อ.ตัวอย่าง หนึ่ง' },
+      { id: 't2', th: 'ทีมตัวอย่าง ข', en: 'Sample Team B', members: 7, advisor: 'อ.ตัวอย่าง สอง' },
+      { id: 't3', th: 'ทีมตัวอย่าง ค', en: 'Sample Team C', members: 2, advisor: 'อ.ตัวอย่าง สาม, อ.ตัวอย่าง สี่' }
+    ];
+    const purgedDelete = s.purged === 'delete';
+    const purgedAnon = s.purged === 'anonymize';
+    const shown = purgedDelete ? [] : teamDefs;
+    const teams = shown.map((t) => {
+      const ok = s.done[t.id];
+      return {
+        ...t,
+        members: purgedAnon ? '— (' + t.members + ' คน)' : t.members + ' คน',
+        advisor: purgedAnon ? '—' : t.advisor,
+        status: ok ? 'การสมัครสำเร็จ' : 'รอ admin ตรวจสอบ',
+        bg: ok ? '#ECFDF3' : '#FEF3C7', fg: ok ? '#067647' : '#7A4B00',
+        action: ok ? 'ย้อนเป็นรอตรวจสอบ' : 'ยืนยันการสมัคร',
+        toggle: () => this.setState({ done: { ...s.done, [t.id]: !ok } })
+      };
+    });
+    const doneN = shown.filter((t) => s.done[t.id]).length;
+
+    // registration
+    const modeDefs = [
+      ['auto', 'ตามช่วงเวลา', 'เปิดเองเมื่อถึงวัน-เวลาเปิดรับสมัคร และปิดเองเมื่อถึงเวลาปิด (แนะนำ)'],
+      ['open', 'เปิดรับสมัครทันที (บังคับ)', 'เปิดตลอดจนกว่าจะเปลี่ยนโหมด ไม่สนใจวัน-เวลา'],
+      ['closed', 'ปิดรับสมัคร (บังคับ)', 'ปิดทันที ไม่สนใจวัน-เวลา']
+    ];
+    const modes = modeDefs.map(([id, title, desc]) => ({
+      title, desc, checked: s.regMode === id, pick: () => this.setState({ regMode: id })
+    }));
+    const regText = { auto: 'เปิด/ปิดตามช่วงเวลา', open: 'เปิดรับสมัคร (บังคับ)', closed: 'ปิดรับสมัคร (บังคับ)' }[s.regMode];
+    const regDetail = s.regMode === 'auto'
+      ? 'เปิดรับสมัคร 1 ธ.ค. 2026 09:00 – ปิด 31 ธ.ค. 2026 23:59 (ค่าตัวอย่าง)'
+      : 'โหมดบังคับ — ไม่ขึ้นกับวัน-เวลา เปลี่ยนได้ที่แท็บ “ปี/รอบการจัด”';
+
+    // editions
+    const editionRows = s.editions.map((e) => ({
+      year: e.year,
+      title: 'Sci-Tech Pitching ' + e.year,
+      status: e.current ? 'ปีปัจจุบัน' : (e.status === 'draft' ? 'ร่าง (ยังไม่แสดง)' : 'เก็บถาวร'),
+      bg: e.current ? '#DBEAFE' : '#E2E8F0', fg: e.current ? '#1E3A8A' : '#334155',
+      actText: e.current ? 'กำลังใช้งาน' : 'ตั้งเป็นปีปัจจุบัน',
+      act: () => {
+        if (e.current) return;
+        this.setState({ editions: s.editions.map((x) => ({ ...x, current: x.year === e.year, status: x.year === e.year ? 'active' : (x.current ? 'archived' : x.status) })), purged: null, backedUp: false, confirm: '' });
+      }
+    }));
+
+    // slots
+    const slotDefs = [
+      { id: 's1', title: 'เอกสารโครงงาน (ตัวอย่าง)', rule: 'จำเป็น · PDF · ไม่เกิน 10 MB' },
+      { id: 's2', title: 'สำเนาบัตรนักศึกษา (ตัวอย่าง)', rule: 'จำเป็น · JPG/PNG/PDF · ไม่เกิน 5 MB' },
+      { id: 's3', title: 'ไฟล์เสริม (ตัวอย่าง)', rule: 'ไม่บังคับ' }
+    ];
+    const slotRows = slotDefs.map((d) => {
+      const on = s.slotOn[d.id];
+      return {
+        title: d.title, rule: d.rule,
+        state: on ? 'เปิดรับไฟล์' : 'ปิดอยู่', color: on ? '#067647' : '#475569',
+        btn: on ? 'ปิดช่องนี้' : 'เปิดช่องนี้',
+        toggle: () => this.setState({ slotOn: { ...s.slotOn, [d.id]: !on } })
+      };
+    });
+
+    // gallery
+    const tones = ['#CBD5E1', '#BFCBDD', '#D5DCE8'];
+    const albumDefs = [
+      { id: 'a1', title: 'พิธีเปิด (ตัวอย่าง)', meta: '2026 · 8 ภาพ' },
+      { id: 'a2', title: 'การนำเสนอของทีม (ตัวอย่าง)', meta: '2026 · 12 ภาพ' },
+      { id: 'a3', title: 'พิธีมอบรางวัล (ตัวอย่าง)', meta: '2026 · ลิงก์ภายนอก' }
+    ];
+    const albumRows = albumDefs.map((a, i) => {
+      const on = s.albumPub[a.id];
+      return {
+        title: a.title, meta: a.meta, bg: tones[i],
+        state: on ? 'เผยแพร่แล้ว' : 'ฉบับร่าง', bg2: on ? '#ECFDF3' : '#E2E8F0', fg: on ? '#067647' : '#334155',
+        btn: on ? 'ยกเลิกเผยแพร่' : 'เผยแพร่',
+        toggle: () => this.setState({ albumPub: { ...s.albumPub, [a.id]: !on } })
+      };
+    });
+    const fakeUpload = () => {
+      this.setState({ uploading: true, pct: 0 });
+      let p = 0;
+      const t = setInterval(() => {
+        p += 12.5;
+        this.setState({ pct: Math.min(100, p) });
+        if (p >= 100) clearInterval(t);
+      }, 200);
+    };
+
+    // backup / reset
+    const ready = s.backedUp && s.confirm === 'PURGE ' + year;
+    const resetModeDefs = [
+      ['anonymize', 'เก็บสถิติ ลบข้อมูลส่วนบุคคล (แนะนำ)', 'เก็บชื่อทีม เลขที่ใบสมัคร สถานะ และจำนวนสมาชิก · ลบรหัสนักศึกษา ชื่อ เบอร์โทร ที่ปรึกษา ความยินยอม ข้อความ ไฟล์ที่ทีมส่ง และทำให้ PIN ใช้ไม่ได้'],
+      ['delete', 'ลบทุกอย่างของปีนี้', 'ลบทีมทั้งหมดและข้อมูล/ไฟล์ที่เกี่ยวข้อง ไม่เหลือร่องรอยของผู้สมัครในระบบ']
+    ];
+    const resetModes = resetModeDefs.map(([id, title, desc]) => ({
+      title, desc, checked: s.resetMode === id, pick: () => this.setState({ resetMode: id })
+    }));
+
+    return {
+      loggedOut: !s.auth, loggedIn: s.auth,
+      login: () => this.setState({ auth: true }),
+      logout: () => this.setState({ auth: false, tab: 'overview' }),
+      currentYear: year, tabs,
+      tabOverview: s.tab === 'overview', tabEditions: s.tab === 'editions', tabContent: s.tab === 'content',
+      tabTeams: s.tab === 'teams', tabSlots: s.tab === 'slots', tabGallery: s.tab === 'gallery', tabBackup: s.tab === 'backup',
+      teams, noTeams: purgedDelete,
+      totalTeams: shown.length, doneTeams: doneN, pendingTeams: shown.length - doneN,
+      regStatusText: regText, regDetail,
+      regColor: s.regMode === 'closed' ? '#B42318' : '#067647',
+      goEditions: go('editions'), goBackup: go('backup'),
+      modes, editionRows, slotRows, albumRows,
+      showNew: s.showNew, toggleNew: () => this.setState({ showNew: !s.showNew }),
+      newYear: s.newYear, setNewYear: (e) => this.setState({ newYear: e.target.value.replace(/\D/g, '').slice(0, 4) }),
+      copyPrev: s.copyPrev, toggleCopy: () => this.setState({ copyPrev: !s.copyPrev }),
+      createYear: () => {
+        const y = Number(s.newYear);
+        if (!y || s.editions.some((e) => e.year === y)) return;
+        this.setState({ editions: [{ year: y, current: false, status: 'draft' }, ...s.editions], showNew: false, newYear: String(y + 1) });
+      },
+      showAlbum: s.showAlbum, toggleAlbum: () => this.setState({ showAlbum: !s.showAlbum, uploading: false, pct: 0 }),
+      uploading: s.uploading, uploadPct: s.pct,
+      uploadText: s.pct >= 100 ? 'อัปโหลดครบ 24 ภาพ' : 'กำลังย่อและอัปโหลด… ' + Math.round(s.pct) + '%',
+      fakeUpload,
+      backedUp: s.backedUp, backupTeams: teamDefs.length, backupMembers: 13,
+      backupText: s.backedUp ? 'สำรองล่าสุด: เมื่อสักครู่' : 'ยังไม่เคยสำรองข้อมูลของปีนี้',
+      backupColor: s.backedUp ? '#067647' : '#B42318',
+      doBackup: () => this.setState({ backedUp: true }),
+      resetModes,
+      okBackupText: s.backedUp ? '✓ มีไฟล์สำรองภายใน 24 ชั่วโมง' : '✗ ต้องสำรองข้อมูลภายใน 24 ชั่วโมงก่อนรีเซ็ต',
+      okBackupColor: s.backedUp ? '#067647' : '#B42318',
+      confirmText: s.confirm, setConfirm: (e) => this.setState({ confirm: e.target.value }),
+      resetDisabled: !ready, resetBg: ready ? '#B42318' : '#94A3B8', resetCursor: ready ? 'pointer' : 'not-allowed',
+      doReset: () => { if (ready) this.setState({ purged: s.resetMode, confirm: '' }); },
+      purgedText: s.purged === 'delete'
+        ? 'ลบแล้ว: ทีม 3 · สมาชิก 13 · ไฟล์ 6 — บันทึกลง audit log'
+        : (s.purged === 'anonymize' ? 'ลบข้อมูลส่วนบุคคลแล้ว: ทีม 3 (เก็บชื่อและสถานะ) · สมาชิก 13 · ไฟล์ 6 — บันทึกลง audit log' : '')
+    };
+  }
+}
+</script>
+</body>
+</html>

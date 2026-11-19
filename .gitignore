@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+supabase/.branches
+supabase/.temp
+
+# Apps Script project link (clasp) and local Claude settings — never publish
+.clasp.json
+.claude/settings.local.json

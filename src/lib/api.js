@@ -1,0 +1,85 @@
+// Client for the Google Apps Script Web App (docs/GAS-DESIGN.md §1).
+// Every call is POST + Content-Type text/plain (a "simple" CORS request: no preflight) with a JSON body
+// { action, ...payload }. Replies are { ok:true, data } | { ok:false, reason }.
+// Only the Web App URL is configured here — it is public by nature. No secret ever belongs in this bundle.
+
+const url = import.meta.env.VITE_GAS_URL;
+
+export const apiConfigured = Boolean(url);
+
+if (!apiConfigured) {
+  console.error('Missing VITE_GAS_URL — copy .env.example to .env.local and paste the Web App /exec URL');
+}
+
+/** Error carrying the machine-readable `reason` from the server (or 'network' / 'bad_response' / 'not_configured'). */
+export class ApiError extends Error {
+  constructor(reason) {
+    super(reason);
+    this.name = 'ApiError';
+    this.reason = reason;
+  }
+}
+
+/**
+ * api('public_site') -> data
+ * api('submit_team', { ... }) -> data        (throws ApiError on { ok:false })
+ * Options: { retry: n } extra attempts for a *failed connection* only (use for read-only actions).
+ */
+export async function api(action, payload = {}, { retry = 0 } = {}) {
+  if (!apiConfigured) throw new ApiError('not_configured');
+  let lastError;
+  for (let attempt = 0; attempt <= retry; attempt++) {
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...payload }),
+      });
+    } catch (err) {
+      lastError = new ApiError('network');
+      lastError.cause = err;
+      continue; // connection failed: safe to try again
+    }
+    let body;
+    try {
+      body = await res.json();
+    } catch {
+      throw new ApiError('bad_response'); // e.g. Google sign-in/HTML error page instead of JSON
+    }
+    if (!body || body.ok !== true) throw new ApiError(body?.reason || 'server_error');
+    return body.data;
+  }
+  throw lastError;
+}
+
+// Machine-readable reason codes -> Thai text for the UI.
+export const errorText = {
+  network: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง',
+  not_configured: 'ยังไม่ได้ตั้งค่า VITE_GAS_URL',
+  bad_response: 'เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ โปรดลองอีกครั้ง',
+  server_error: 'ระบบขัดข้อง โปรดลองอีกครั้งภายหลัง',
+  not_setup: 'ระบบหลังบ้านยังไม่ได้ติดตั้ง (ต้องรัน setup() ใน Apps Script)',
+  unknown_action: 'คำสั่งไม่ถูกต้อง',
+  busy: 'ระบบกำลังประมวลผลคำขออื่นอยู่ โปรดลองอีกครั้ง',
+  rate_limited: 'ส่งคำขอถี่เกินไป โปรดรอสักครู่แล้วลองใหม่',
+  registration_closed: 'ขณะนี้ปิดรับสมัครแล้ว',
+  consent_required: 'ต้องติ๊กรับทราบและยินยอม PDPA',
+  invalid_pin: 'PIN ต้องเป็นตัวเลข 4 หลัก',
+  invalid_members: 'จำนวนสมาชิกไม่ถูกต้อง',
+  invalid_advisors: 'ต้องมีอาจารย์ที่ปรึกษาอย่างน้อย 1 ท่าน',
+  invalid_input: 'ข้อมูลบางช่องไม่ถูกต้อง',
+  student_id_taken: 'มีรหัสนักศึกษาที่สมัครแล้ว หากคิดว่าผิดพลาดติดต่อฝ่ายจัดงาน',
+  team_name_taken: 'ชื่อทีมภาษาอังกฤษนี้มีผู้ใช้แล้ว',
+  submit_failed: 'บันทึกไม่สำเร็จ โปรดลองอีกครั้ง',
+  forbidden: 'ไม่มีสิทธิ์ดำเนินการ',
+  unauthorized: 'โปรดเข้าสู่ระบบใหม่',
+  no_current_edition: 'ยังไม่มีรอบการจัดงานที่เปิดใช้งาน',
+  backup_required: 'ต้องสำรองข้อมูลภายใน 24 ชั่วโมงก่อนรีเซ็ต',
+  edition_exists: 'มีรอบการจัดงานของปีนี้อยู่แล้ว',
+};
+
+/** Thai message for any error thrown by api(). */
+export function messageFor(err) {
+  return errorText[err?.reason] ?? errorText.server_error;
+}

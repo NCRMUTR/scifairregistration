@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ตรวจสอบการสมัคร — Sci-Tech Pitching 2026</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#0F172A;background:#F4F6FA}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+button{font-family:inherit}
+.inp{font-family:inherit;font-size:16px;min-height:44px;padding:0 12px;border-radius:10px;background:#FFFFFF;color:#0F172A;width:100%;box-sizing:border-box}
+.inp:focus-visible,.btn:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid #FBBF24;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 1240px; display: flex; flex-direction: column; background: #F4F6FA">
+
+<div style="background: #0B1D3F; color: #FFFFFF; padding: 0 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<div style="font-weight: 700; min-height: 56px; display: flex; align-items: center">Sci-Tech Pitching 2026</div>
+<nav style="display: flex; flex-wrap: wrap; gap: 28px; font-size: 15px">
+<a href="Main.dc.html" style="color: #FFFFFF; text-decoration: none; min-height: 44px; display: flex; align-items: center">หน้าหลัก</a>
+<a href="Gallery.dc.html" style="color: #FFFFFF; text-decoration: none; min-height: 44px; display: flex; align-items: center">ภาพกิจกรรม</a>
+<a href="Status.dc.html" style="color: #FFFFFF; text-decoration: none; min-height: 44px; display: flex; align-items: center; font-weight: 600; border-bottom: 3px solid #FBBF24">ตรวจสอบการสมัคร</a>
+</nav>
+</div>
+
+<div style="max-width: 880px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 700">ตรวจสอบการสมัคร</h1>
+
+<sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 20px; max-width: 520px">
+<div style="font-size: 15px; color: #475569; line-height: 1.7">กรอกชื่อทีมภาษาอังกฤษและ PIN 4 หลักที่ตั้งไว้ตอนสมัคร</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">ชื่อทีม (ภาษาอังกฤษ)
+<input class="inp" type="text" value="{{ teamEn }}" onChange="{{ setTeamEn }}" style="border: 1px solid #64748B">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500">PIN 4 หลัก
+<input class="inp" type="password" inputmode="numeric" value="{{ pin }}" onChange="{{ setPin }}" style="border: 1px solid #64748B; letter-spacing: 6px; max-width: 200px">
+</label>
+<sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
+<div style="font-weight: 600; font-size: 14px; color: #B42318; line-height: 1.6">{{ err }}</div>
+</sc-if>
+<button class="btn" onClick="{{ lookup }}" disabled="{{ locked }}" style="align-self: flex-start; min-height: 52px; padding: 0 40px; border: 0; border-radius: 12px; font-size: 17px; font-weight: 700; color: #FFFFFF; background: {{ lookupBg }}; cursor: pointer">ตรวจสอบ</button>
+<div style="font-size: 13px; color: #475569; border-top: 1px dashed #94A3B8; padding-top: 12px; line-height: 1.6">ตัวอย่าง: ชื่อทีม Sample Team และ PIN 4821 — ใส่ PIN ผิดเพื่อดูข้อความแจ้งและการจำกัดจำนวนครั้ง</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 24px">
+
+<div style="background: #FFFFFF; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px">
+<div>
+<div style="font-size: 26px; font-weight: 700">ทีมตัวอย่าง</div>
+<div style="font-size: 16px; color: #334155">Sample Team</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px">
+<div style="font-weight: 700; font-size: 15px; border-radius: 999px; padding: 6px 16px; background: {{ badgeBg }}; color: {{ badgeFg }}">{{ badgeText }}</div>
+<button class="btn" onClick="{{ toggleApproved }}" style="min-height: 44px; border: 0; background: transparent; color: #475569; font-size: 12px; cursor: pointer; text-decoration: underline">ดูตัวอย่างอีกสถานะ (เฉพาะ mockup)</button>
+</div>
+</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6">{{ badgeHint }}</div>
+<div style="font-weight: 600; border-top: 1px solid #E2E8F0; padding-top: 12px">สมาชิก 2 คน</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; line-height: 1.6"><span style="font-weight: 600">1. สมชาย ตัวอย่าง</span><span>6401234567001</span><span>0812345678</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; line-height: 1.6"><span style="font-weight: 600">2. สมหญิง ตัวอย่าง</span><span>6401234567002</span><span>0898765432</span></div>
+<div style="font-weight: 600; border-top: 1px solid #E2E8F0; padding-top: 12px">อาจารย์ที่ปรึกษา</div>
+<div style="font-size: 15px; line-height: 1.6">อ.ตัวอย่าง ที่ปรึกษา · สาขาฟิสิกส์ · คณะวิทยาศาสตร์</div>
+<div style="font-size: 12px; color: #475569">PIN ไม่แสดงซ้ำในหน้านี้</div>
+</div>
+
+<div style="background: #FFFFFF; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<div>
+<h2 style="margin: 0; font-size: 22px">ส่งเอกสารเพิ่มเติม</h2>
+<div style="font-size: 14px; color: #475569; margin-top: 4px">ช่องส่งไฟล์ตั้งค่าโดย admin ภายหลัง — ด้านล่างเป็นตัวอย่างการแสดงผล</div>
+</div>
+<sc-for list="{{ slots }}" as="s" hint-placeholder-count="3">
+<div style="border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 280px">
+<div style="font-weight: 600">{{ s.title }} <span style="font-weight: 500; font-size: 12px; color: #B42318">{{ s.req }}</span></div>
+<div style="font-size: 13px; color: #475569">{{ s.rule }}</div>
+<div style="font-size: 13px; font-weight: 600; color: {{ s.color }}">{{ s.state }}</div>
+</div>
+<button class="btn" onClick="{{ s.act }}" style="min-height: 44px; padding: 0 20px; border: 2px solid #1D4ED8; background: #FFFFFF; color: #1D4ED8; border-radius: 10px; font-weight: 600; cursor: pointer">{{ s.btn }}</button>
+</div>
+</sc-for>
+</div>
+
+<div style="background: #FFFFFF; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 22px">ติดต่อคณะกรรมการ</h2>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; font-size: 14px">ข้อความถึงคณะกรรมการ
+<textarea onChange="{{ setMsg }}" rows="4" style="font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #64748B; border-radius: 10px; box-sizing: border-box; width: 100%; resize: vertical">{{ msg }}</textarea>
+</label>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+<button class="btn" onClick="{{ send }}" style="min-height: 48px; padding: 0 28px; border: 0; background: #1D4ED8; color: #FFFFFF; border-radius: 10px; font-weight: 700; cursor: pointer">ส่งข้อความ</button>
+<sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 14px; font-weight: 600; color: #067647">ส่งข้อความแล้ว — คณะกรรมการจะตอบกลับตามช่องทางติดต่อของทีม</div>
+</sc-if>
+</div>
+<div style="font-size: 13px; color: #475569">ช่องทางติดต่ออื่น: [อีเมลคณะกรรมการ] · [เบอร์โทร]</div>
+</div>
+
+<button class="btn" onClick="{{ back }}" style="align-self: flex-start; min-height: 44px; padding: 0 20px; border: 0; background: #E2E8F0; color: #0F172A; border-radius: 10px; font-weight: 600; cursor: pointer">ออกจากหน้านี้</button>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+  state = {
+    teamEn: 'Sample Team', pin: '', stage: 'form', err: '', tries: 0,
+    approved: false, msg: '', sent: false,
+    files: { s1: true, s2: false, s3: false }
+  };
+
+  renderVals() {
+    const s = this.state;
+    const left = 5 - s.tries;
+    const locked = s.tries >= 5;
+    const defs = [
+      { id: 's1', title: 'สำเนาบัตรนักศึกษา (ตัวอย่าง)', rule: 'ไฟล์ JPG/PNG/PDF ไม่เกิน 5 MB', req: 'จำเป็น' },
+      { id: 's2', title: 'เอกสารโครงงาน (ตัวอย่าง)', rule: 'ไฟล์ PDF ไม่เกิน 10 MB', req: 'จำเป็น' },
+      { id: 's3', title: 'ไฟล์เสริม (ตัวอย่าง)', rule: 'ไม่บังคับ', req: '' }
+    ];
+    const slots = defs.map((d) => {
+      const done = s.files[d.id];
+      return {
+        title: d.title, rule: d.rule, req: d.req,
+        state: done ? 'ส่งแล้ว: ' + d.id + '-ตัวอย่าง.pdf' : 'ยังไม่ได้ส่ง',
+        color: done ? '#067647' : '#475569',
+        btn: done ? 'เปลี่ยนไฟล์' : 'เลือกไฟล์',
+        act: () => this.setState({ files: { ...s.files, [d.id]: true } })
+      };
+    });
+    return {
+      isForm: s.stage === 'form', isResult: s.stage === 'result',
+      teamEn: s.teamEn, pin: s.pin, err: s.err, locked,
+      lookupBg: locked ? '#64748B' : '#1D4ED8',
+      setTeamEn: (e) => this.setState({ teamEn: e.target.value }),
+      setPin: (e) => this.setState({ pin: e.target.value.replace(/\D/g, '').slice(0, 4) }),
+      lookup: () => {
+        if (locked) return;
+        const ok = s.teamEn.trim().toLowerCase() === 'sample team' && s.pin === '4821';
+        if (ok) { this.setState({ stage: 'result', err: '', tries: 0 }); return; }
+        const t = s.tries + 1;
+        this.setState({
+          tries: t,
+          err: t >= 5
+            ? 'กรอกผิดหลายครั้ง ระบบล็อกชั่วคราว 15 นาที — ลองใหม่ภายหลังหรือติดต่อ admin'
+            : 'ไม่พบทีมหรือ PIN ไม่ถูกต้อง (เหลืออีก ' + (5 - t) + ' ครั้งก่อนล็อกชั่วคราว)'
+        });
+      },
+      badgeText: s.approved ? 'การสมัครสำเร็จ' : 'รอ admin ตรวจสอบ',
+      badgeBg: s.approved ? '#ECFDF3' : '#FEF3C7',
+      badgeFg: s.approved ? '#067647' : '#7A4B00',
+      badgeHint: s.approved ? 'admin ตรวจสอบเอกสารเรียบร้อยแล้ว ทีมของคุณมีสิทธิ์เข้าร่วมการประกวด' : 'ใบสมัครถูกบันทึกแล้ว อยู่ระหว่างรอ admin ตรวจสอบข้อมูล',
+      toggleApproved: () => this.setState({ approved: !s.approved }),
+      slots, msg: s.msg, sent: s.sent,
+      setMsg: (e) => this.setState({ msg: e.target.value, sent: false }),
+      send: () => this.setState({ sent: true, msg: '' }),
+      back: () => this.setState({ stage: 'form', pin: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

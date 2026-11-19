@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ภาพกิจกรรม — Sci-Tech Pitching</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#0F172A;background:#F4F6FA}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+button{font-family:inherit}
+.btn:focus-visible,a:focus-visible{outline:3px solid #FBBF24;outline-offset:2px}
+.nav a{color:#FFFFFF;text-decoration:none;min-height:44px;display:flex;align-items:center;font-size:15px}
+.nav a:hover{color:#FBBF24}
+</style>
+</helmet>
+<div style="position: relative; min-height: 1100px; display: flex; flex-direction: column; background: #F4F6FA">
+
+<div style="background: #0B1D3F; color: #FFFFFF; padding: 0 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<div style="font-weight: 700; min-height: 56px; display: flex; align-items: center">Sci-Tech Pitching</div>
+<nav class="nav" style="display: flex; flex-wrap: wrap; gap: 28px">
+<a href="Main.dc.html">หน้าหลัก</a>
+<a href="Main.dc.html#dates">กำหนดการ</a>
+<a href="Gallery.dc.html" style="font-weight: 600; border-bottom: 3px solid #FBBF24">ภาพกิจกรรม</a>
+<a href="Status.dc.html">ตรวจสอบการสมัคร</a>
+</nav>
+</div>
+
+<div style="max-width: 1080px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 38px; font-weight: 700">ภาพกิจกรรม</h1>
+<div style="font-size: 16px; color: #475569">ภาพบรรยากาศการจัดงานของแต่ละปี — ข้อความนี้ admin แก้ไขได้</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<sc-for list="{{ years }}" as="y" hint-placeholder-count="1">
+<button class="btn" onClick="{{ y.pick }}" style="min-height: 44px; padding: 0 22px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer; border: 2px solid #1D4ED8; background: {{ y.bg }}; color: {{ y.fg }}">{{ y.label }}</button>
+</sc-for>
+<div style="font-size: 13px; color: #475569; margin-left: 8px">แท็บปีใหม่จะเพิ่มเองเมื่อ admin สร้างปีถัดไปและเผยแพร่</div>
+</div>
+
+<sc-if value="{{ inList }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 20px">
+<sc-for list="{{ albums }}" as="a" hint-placeholder-count="3">
+<button class="btn" onClick="{{ a.open }}" style="flex: 1 1 300px; max-width: 340px; padding: 0; border: 0; border-radius: 14px; background: #FFFFFF; cursor: pointer; text-align: left; overflow: hidden; display: flex; flex-direction: column">
+<div style="height: 190px; background: {{ a.bg }}; display: flex; align-items: center; justify-content: center; color: #334155; font-size: 14px">ภาพปกอัลบั้ม</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 18px; font-weight: 700; color: #0F172A">{{ a.title }}</div>
+<div style="font-size: 14px; color: #475569">{{ a.meta }}</div>
+</div>
+</button>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #475569; border-top: 1px dashed #94A3B8; padding-top: 12px; line-height: 1.6">อัลบั้มตัวอย่าง — ภาพจริงอัปโหลดจากหน้า Admin (ระบบย่อภาพให้อัตโนมัติ) หรือใส่ลิงก์ไปยังอัลบั้มภายนอก เช่น Google Photos</div>
+</sc-if>
+
+<sc-if value="{{ inAlbum }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<button class="btn" onClick="{{ back }}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #E2E8F0; color: #0F172A; font-weight: 600; cursor: pointer">← อัลบั้มทั้งหมด</button>
+<div>
+<h2 style="margin: 0; font-size: 28px">{{ albumTitle }}</h2>
+<div style="font-size: 15px; color: #475569; margin-top: 4px">{{ albumMeta }}</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<sc-for list="{{ photos }}" as="p" hint-placeholder-count="8">
+<button class="btn" onClick="{{ p.open }}" aria-label="เปิดภาพที่ {{ p.n }}" style="flex: 1 1 200px; max-width: 250px; height: 160px; border: 0; border-radius: 12px; background: {{ p.bg }}; color: #334155; font-size: 14px; cursor: pointer">ภาพที่ {{ p.n }}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex: 1"></div>
+<div style="background: #0B1D3F; color: #CBD5E1; padding: 28px 48px; font-size: 14px; line-height: 1.7">
+<div style="color: #FFFFFF; font-weight: 600; font-size: 16px">Sci-Tech Pitching</div>
+<div>[หน่วยงานผู้จัด] · [อีเมลติดต่อ] · [เบอร์โทร]</div>
+</div>
+
+<sc-if value="{{ lbOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 20; background: rgba(2,6,23,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; box-sizing: border-box">
+<div role="dialog" aria-label="ดูภาพ" style="width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center; color: #FFFFFF">
+<div style="font-size: 15px">{{ lbCounter }}</div>
+<button class="btn" onClick="{{ closeLb }}" aria-label="ปิด" style="min-width: 44px; min-height: 44px; border: 0; background: #334155; color: #FFFFFF; border-radius: 10px; font-size: 22px; cursor: pointer">×</button>
+</div>
+<div style="height: 460px; border-radius: 12px; background: {{ lbBg }}; display: flex; align-items: center; justify-content: center; color: #334155; font-size: 18px">ภาพที่ {{ lbN }}</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<button class="btn" onClick="{{ prev }}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 10px; background: #FFFFFF; color: #0F172A; font-weight: 600; cursor: pointer">← ก่อนหน้า</button>
+<div style="color: #E2E8F0; font-size: 15px; text-align: center">คำบรรยายภาพ (ไม่บังคับ)</div>
+<button class="btn" onClick="{{ next }}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 10px; background: #FFFFFF; color: #0F172A; font-weight: 600; cursor: pointer">ถัดไป →</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  state = { year: 2026, album: null, lb: null };
+
+  renderVals() {
+    const s = this.state;
+    const tones = ['#CBD5E1', '#BFCBDD', '#D5DCE8', '#C3CEDF', '#D0D8E6', '#B9C6DA'];
+    const albumDefs = [
+      { id: 'a1', title: 'พิธีเปิด (ตัวอย่าง)', n: 8, date: '[วันที่]' },
+      { id: 'a2', title: 'การนำเสนอของทีม (ตัวอย่าง)', n: 12, date: '[วันที่]' },
+      { id: 'a3', title: 'พิธีมอบรางวัล (ตัวอย่าง)', n: 0, date: '[วันที่]', ext: true }
+    ];
+    const albums = albumDefs.map((a, i) => ({
+      title: a.title,
+      bg: tones[i % tones.length],
+      meta: (a.ext ? 'อัลบั้มภายนอก · ' : a.n + ' ภาพ · ') + a.date,
+      open: () => {
+        if (a.ext) return;
+        this.setState({ album: a.id });
+      }
+    }));
+    const cur = albumDefs.find((a) => a.id === s.album);
+    const photos = cur
+      ? Array.from({ length: cur.n }, (_, i) => ({
+          n: i + 1,
+          bg: tones[(i + 2) % tones.length],
+          open: () => this.setState({ lb: i })
+        }))
+      : [];
+    const lbOpen = s.lb !== null && cur;
+    const move = (d) => this.setState({ lb: (s.lb + d + cur.n) % cur.n });
+    return {
+      years: [{ label: '2026', bg: '#1D4ED8', fg: '#FFFFFF', pick: () => this.setState({ year: 2026, album: null }) }],
+      inList: !cur, inAlbum: !!cur, albums, photos,
+      albumTitle: cur ? cur.title : '',
+      albumMeta: cur ? cur.n + ' ภาพ · ' + cur.date + ' · ปี 2026' : '',
+      back: () => this.setState({ album: null, lb: null }),
+      lbOpen: !!lbOpen,
+      lbN: lbOpen ? s.lb + 1 : 0,
+      lbCounter: lbOpen ? (s.lb + 1) + ' / ' + cur.n : '',
+      lbBg: lbOpen ? tones[(s.lb + 2) % tones.length] : '#CBD5E1',
+      closeLb: () => this.setState({ lb: null }),
+      prev: () => move(-1),
+      next: () => move(1)
+    };
+  }
+}
+</script>
+</body>
+</html>

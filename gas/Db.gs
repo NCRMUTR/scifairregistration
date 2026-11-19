@@ -33,9 +33,10 @@ function props_() {
 }
 
 /** An Error carrying a machine-readable reason code (mapped to Thai text in src/lib/api.js). */
-function fail_(reason, detail) {
+function fail_(reason, detail, extra) {
   const err = new Error(detail ? reason + ': ' + detail : reason);
   err.reason = reason;
+  if (extra) err.extra = extra; // small public fields sent next to `reason` (e.g. attempts_left)
   return err;
 }
 

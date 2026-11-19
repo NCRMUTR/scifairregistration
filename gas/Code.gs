@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g1';
+const VERSION = 'g3';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -21,7 +21,7 @@ function doPost(e) {
     if (!handler) return reply_({ ok: false, reason: 'unknown_action' });
     return reply_({ ok: true, data: handler(req) });
   } catch (err) {
-    if (err && err.reason) return reply_({ ok: false, reason: err.reason });
+    if (err && err.reason) return reply_(Object.assign({}, err.extra || {}, { ok: false, reason: err.reason }));
     console.error('action ' + action + ' failed: ' + (err && err.stack || err)); // visible in Apps Script > Executions only
     return reply_({ ok: false, reason: 'server_error' });
   }
@@ -41,6 +41,10 @@ const ACTIONS = {
   public_site: function (req) { return publicSite_(req); },
   student_id_taken: function (req) { return studentIdTaken_(req); },
   submit_team: function (req) { return submitTeam_(req); },
+  lookup_team: function (req) { return lookupTeam_(req); },
+  prepare_upload: function (req) { return prepareUpload_(req); },
+  confirm_upload: function (req) { return confirmUpload_(req); },
+  send_message: function (req) { return sendMessage_(req); },
 };
 
 // ───────────── shared helpers used by every write action ─────────────

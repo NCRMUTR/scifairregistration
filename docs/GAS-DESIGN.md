@@ -90,7 +90,10 @@ gas/                      โค้ดฝั่ง GAS (push ด้วย clasp 
   appsscript.json         timezone, scopes, webapp config
   Code.gs                 doPost router + ตัวห่อ error/lock/rate limit
   Setup.gs                setup(): สร้างแท็บ โฟลเดอร์ pepper ข้อมูลเริ่มต้น
-  Public.gs               public_site, student_id_taken, submit_team, lookup_team, send_message, uploads
+  Public.gs               public_site (+ Drive URL helpers, registrationOpen_)
+  Apply.gs                student_id_taken, submit_team
+  Team.gs                 lookup_team, send_message, prepare_upload, confirm_upload (all via verifyTeam_ = name+PIN, lock-out, inside the lock)
+                          uploads go to team-files/<year>/<ref_no>_<team id prefix>/ so a whole edition can be removed by folder
   Admin.gs                ล็อกอิน/session/TOTP + action ของ admin + backup/purge
   Db.gs                   helper อ่าน/เขียนชีต (plain-text, index, rollback)
 src/lib/api.js            เรียก GAS + errorText (แทน supabase.js)

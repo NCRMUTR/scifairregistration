@@ -13,10 +13,11 @@ if (!apiConfigured) {
 
 /** Error carrying the machine-readable `reason` from the server (or 'network' / 'bad_response' / 'not_configured'). */
 export class ApiError extends Error {
-  constructor(reason) {
+  constructor(reason, extra = {}) {
     super(reason);
     this.name = 'ApiError';
     this.reason = reason;
+    this.extra = extra; // small public fields next to `reason`, e.g. { attempts_left: 3 }
   }
 }
 
@@ -28,6 +29,7 @@ export class ApiError extends Error {
 export async function api(action, payload = {}, { retry = 0 } = {}) {
   if (!apiConfigured) throw new ApiError('not_configured');
   let lastError;
+  let busyTries = 0;
   for (let attempt = 0; attempt <= retry; attempt++) {
     let res;
     try {
@@ -47,7 +49,17 @@ export async function api(action, payload = {}, { retry = 0 } = {}) {
     } catch {
       throw new ApiError('bad_response'); // e.g. Google sign-in/HTML error page instead of JSON
     }
-    if (!body || body.ok !== true) throw new ApiError(body?.reason || 'server_error');
+    if (body && body.ok === false && body.reason === 'busy' && busyTries < 3) {
+      // 'busy' = the server could not get its write lock, so NOTHING was written: always safe to ask again.
+      busyTries++;
+      attempt--; // does not use up a connection retry
+      await new Promise((r) => setTimeout(r, 2500));
+      continue;
+    }
+    if (!body || body.ok !== true) {
+      const { ok, reason, ...extra } = body || {};
+      throw new ApiError(reason || 'server_error', extra);
+    }
     return body.data;
   }
   throw lastError;
@@ -77,6 +89,15 @@ export const errorText = {
   no_current_edition: 'ยังไม่มีรอบการจัดงานที่เปิดใช้งาน',
   backup_required: 'ต้องสำรองข้อมูลภายใน 24 ชั่วโมงก่อนรีเซ็ต',
   edition_exists: 'มีรอบการจัดงานของปีนี้อยู่แล้ว',
+  invalid_credentials: 'ไม่พบทีมหรือ PIN ไม่ถูกต้อง',
+  locked: 'กรอกผิดหลายครั้ง ระบบล็อกชั่วคราว 15 นาที — ลองใหม่ภายหลังหรือติดต่อผู้จัดงาน',
+  slot_closed: 'ช่องส่งไฟล์นี้ปิดแล้ว',
+  deadline_passed: 'เลยกำหนดส่งไฟล์ของช่องนี้แล้ว',
+  file_too_large: 'ไฟล์ใหญ่เกินที่กำหนด',
+  file_type_not_allowed: 'ชนิดไฟล์นี้ไม่ได้รับอนุญาตสำหรับช่องนี้',
+  origin_not_allowed: 'เว็บนี้ยังไม่ได้รับอนุญาตให้อัปโหลดไฟล์ โปรดแจ้งผู้จัดงาน',
+  file_not_found: 'ไม่พบไฟล์ที่อัปโหลด โปรดลองส่งใหม่',
+  upload_failed: 'อัปโหลดไม่สำเร็จ โปรดลองอีกครั้ง',
 };
 
 /** Thai message for any error thrown by api(). */

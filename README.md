@@ -8,7 +8,7 @@
 - สถาปัตยกรรมหลังบ้าน → [`docs/GAS-DESIGN.md`](docs/GAS-DESIGN.md) (แทนทุกส่วนที่พูดถึง Supabase)
 - ความต้องการและกติกา → [`docs/SPEC.md`](docs/SPEC.md) · กติกาสำหรับ Claude Code → [`CLAUDE.md`](CLAUDE.md)
 
-> ประวัติ: ออกแบบแรกใช้ Supabase; วันที่ 2026-11-19 ย้ายมา Google Apps Script (ผู้ใช้น้อย ดูแลง่าย) โฟลเดอร์ `supabase/`, `INSTALL.md` และ `docs/PROMPTS.md` เป็นเอกสารเดิมที่ล้าสมัย เก็บไว้อ้างอิงตรรกะเท่านั้น — **ห้ามนำไปใช้งาน**
+> ประวัติ: ออกแบบแรกใช้ Supabase; วันที่ 2026-11-19 ย้ายมา Google Apps Script (ผู้ใช้น้อย ดูแลง่าย) โฟลเดอร์ `supabase/`, `INSTALL.md` และ `docs/PROMPTS.md` ถูกลบแล้ว (ยังดูได้จากประวัติ git)
 
 ## เริ่มพัฒนา
 

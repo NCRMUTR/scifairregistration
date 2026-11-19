@@ -100,7 +100,7 @@ function ensureFolders_(p) {
   return out;
 }
 
-/** Starter content (same as supabase/seed.sql). Only fills empty sheets. Call inside withLock_(). */
+/** Starter content (a starter set). Only fills empty sheets. Call inside withLock_(). */
 function seed_() {
   const did = [];
   const now = nowIso_();

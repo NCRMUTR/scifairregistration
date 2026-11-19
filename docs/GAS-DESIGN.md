@@ -1,8 +1,7 @@
 # การออกแบบใหม่: Google Apps Script (GAS) เป็นหลังบ้าน
 
 ตัดสินใจเมื่อ 2026-11-19: **เปลี่ยนหลังบ้านจาก Supabase เป็น Google Apps Script + Google Sheets + Google Drive** (หน้าบ้านยังเป็น Vite + vanilla JS บน GitHub Pages)
-เอกสารนี้แทนที่ส่วนที่พูดถึง Supabase ใน `docs/SPEC.md`, `docs/PROMPTS.md`, `INSTALL.md`, `README.md` — **กติกาธุรกิจ หน้าตา และพฤติกรรมของแต่ละหน้าใน SPEC.md ยังใช้เหมือนเดิมทุกข้อ** เปลี่ยนเฉพาะ "ใครเป็นคนบังคับกติกา"
-ไฟล์ใน `supabase/` เก็บไว้เป็นต้นแบบตรรกะเท่านั้น (ห้ามใช้ deploy)
+เอกสารนี้แทนที่ส่วนที่พูดถึง Supabase ใน `docs/SPEC.md` (ส่วน Supabase เดิมของ `INSTALL.md`, `docs/PROMPTS.md`, `supabase/` ถูกลบแล้ว — ยังดูได้จากประวัติ git) — **กติกาธุรกิจ หน้าตา และพฤติกรรมของแต่ละหน้าใน SPEC.md ยังใช้เหมือนเดิมทุกข้อ** เปลี่ยนเฉพาะ "ใครเป็นคนบังคับกติกา"
 
 ## 1. ภาพรวม
 
@@ -110,7 +109,7 @@ src/lib/api.js            เรียก GAS + errorText (แทน supabase.js
 
 Frontend env: `VITE_GAS_URL` (ลิงก์ `/exec`) เท่านั้น — ไม่มีความลับใดอยู่ใน repo/เบราว์เซอร์ (pepper, แฮชรหัสผ่าน admin, TOTP secret, ID โฟลเดอร์ อยู่ใน Script Properties)
 
-## 9. ลำดับการสร้างใหม่ (แทน `docs/PROMPTS.md`)
+## 9. ลำดับการสร้าง (ทำครบ G0–G8 แล้ว)
 
 | Stage | งาน | สิ่งที่ผู้ใช้ต้องทำ |
 |---|---|---|

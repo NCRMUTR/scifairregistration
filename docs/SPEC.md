@@ -101,10 +101,10 @@ Pop up (ไม่ใช่หน้าแยก): คำชี้แจงโค
 หน้าตรวจสอบของผู้สมัครอ่านอย่างเดียว; ทุกการเปลี่ยนแปลงของ admin บันทึกลง `audit_log`
 
 ## 8. โมเดลข้อมูล
-ดูไฟล์จริงใน `supabase/schema.sql` — ตาราง: `admins`, `site_settings` (ค่าทั้งเว็บ), **`editions`** (ค่าเฉพาะรอบ), `teams`, `members`, `advisors`, `consents`, `upload_slots`, `uploads`, `messages`, **`gallery_albums`**, **`gallery_photos`**, **`backup_log`**, `audit_log`, `lookup_attempts`, `rate_limits`
+ดูโครงสร้างจริงที่ `SCHEMA` ใน `gas/Db.gs` (เดิมเป็น Postgres: `supabase/schema.sql` ในประวัติ git) — ตาราง: `admins`, `site_settings` (ค่าทั้งเว็บ), **`editions`** (ค่าเฉพาะรอบ), `teams`, `members`, `advisors`, `consents`, `upload_slots`, `uploads`, `messages`, **`gallery_albums`**, **`gallery_photos`**, **`backup_log`**, `audit_log`, `lookup_attempts`, `rate_limits`
 - `editions`: year, title, subtitle, intro_text, background_path, rules_pdf_path, ack_text, pdpa_text, key_dates (jsonb), max_members (1–20, ค่าเริ่ม 7), reg_mode (auto/open/closed, ค่าเริ่ม closed), registration_opens_at/closes_at, ref_prefix, ref_counter, is_current (partial unique: ได้รอบเดียว), status (draft/active/archived), last_backup_at, purged_at, purge_mode
 - `teams.edition_id`, `members.edition_id` (FK คู่ไปยัง teams) → unique `(edition_id, student_id)` และ `(edition_id, name_en_key)`
-RPC สาธารณะ: `public_site`, `student_id_taken`, `submit_team`, `lookup_team`, `confirm_upload`, `send_message` · RPC admin: `admin_reset_pin`, `admin_create_edition`, `admin_set_current_edition`, `admin_mark_backup` · ภายใน (service_role): `_prepare_upload`, `_purge_edition`, `_edition_file_paths` · ตัวช่วย: `_verify_team`, `_rate_limit`, `_registration_open`, `_edition_public`, `is_admin` — ดู `supabase/functions.sql`
+RPC สาธารณะ: `public_site`, `student_id_taken`, `submit_team`, `lookup_team`, `confirm_upload`, `send_message` · RPC admin: `admin_reset_pin`, `admin_create_edition`, `admin_set_current_edition`, `admin_mark_backup` · ภายใน (service_role): `_prepare_upload`, `_purge_edition`, `_edition_file_paths` · ตัวช่วย: `_verify_team`, `_rate_limit`, `_registration_open`, `_edition_public`, `is_admin` — ตรรกะเดิมใน Postgres ปัจจุบันอยู่ใน `gas/*.gs`
 คีย์ `site_settings` (ทั้งเว็บ): site_name, logo_path, details_button_label, apply_button_label, submit_label, footer_text, contact_info, gallery_intro
 
 ## 9. ความปลอดภัยและ PDPA

@@ -6,7 +6,7 @@ Read `docs/GAS-DESIGN.md` first (the backend architecture — **it replaces ever
 A Thai-language, conference-style website for a student pitching contest that is **reused every year**. Static frontend on **GitHub Pages** + **Google Apps Script (GAS) Web App** backend with **Google Sheets** (data) and **Google Drive** (files). Five hash-routed pages:
 `#/` home · `#/gallery` photo gallery (permanent, grouped by year) · `#/apply` application form · `#/status` application check · `#/admin` admin console.
 
-> History: the first design used Supabase. On 2026-11-19 the owner decided to move to GAS (low traffic, easier to maintain, they will rarely look at the system). The `supabase/` folder is kept only as a reference for the logic — **do not deploy it and do not extend it.**
+> History: the first design used Supabase. On 2026-11-19 the owner decided to move to GAS (low traffic, easier to maintain, they will rarely look at the system). The old `supabase/` folder, `INSTALL.md` and `docs/PROMPTS.md` were deleted on 2026-11-19 (still in git history); **do not bring Supabase back.**
 
 ## Core concept: editions (รอบการจัดงาน)
 - Each year is an **edition** (row in the `editions` sheet). Exactly one is `is_current`. Teams, members, advisors, uploads, upload slots, ack/PDPA texts, key dates, PDF, background, `max_members` (default **7**) and the registration window all belong to an edition.

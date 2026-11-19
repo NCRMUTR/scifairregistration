@@ -33,7 +33,7 @@ function setup() {
   const folders = ensureFolders_(p);
 
   if (!p.getProperty('PEPPER')) p.setProperty('PEPPER', Utilities.getUuid() + Utilities.getUuid() + Utilities.getUuid());
-  if (!p.getProperty('ALLOWED_ORIGINS')) p.setProperty('ALLOWED_ORIGINS', 'http://localhost:5173'); // add the GitHub Pages origin in Stage G8
+  if (!p.getProperty('ALLOWED_ORIGINS')) p.setProperty('ALLOWED_ORIGINS', 'http://localhost:5173,https://ncrmutr.github.io'); // origins that may upload (comma separated; see docs/OPERATIONS.md)
 
   const seeded = withLock_(seed_);
 

@@ -63,5 +63,17 @@ async function navigate() {
   else window.scrollTo(0, 0);
 }
 
-window.addEventListener('hashchange', navigate);
-navigate();
+// Clickjacking guard: GitHub Pages cannot send frame-ancestors, so the app simply refuses to run inside another site's frame.
+let framed = false;
+try {
+  framed = window.top !== window.self;
+} catch {
+  framed = true; // reading window.top threw: we are inside a cross-origin frame
+}
+
+if (framed) {
+  root.textContent = `เว็บนี้ไม่อนุญาตให้แสดงภายในเฟรมของเว็บอื่น โปรดเปิดโดยตรงที่ ${location.href}`;
+} else {
+  window.addEventListener('hashchange', navigate);
+  navigate();
+}

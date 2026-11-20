@@ -237,16 +237,26 @@ export async function render(body, ctx) {
       !data.totp
         ? h('div', { class: 'banner-warn' }, 'ต้องลงทะเบียนแอป Authenticator ก่อนจึงจะรีเซ็ตได้ ', h('button', { type: 'button', class: 'btn btn-outline btn-sm', onClick: () => ctx.go('account') }, 'ไปที่บัญชีของฉัน'))
         : null,
+      h('h4', { class: 'step-h' }, 'ขั้นที่ 1 — เลือกวิธีรีเซ็ต'),
       h(
         'div',
         { class: 'admin-stack' },
         modeRadio('anonymize', 'ทำให้ไม่ระบุตัวตน (แนะนำ)', 'เก็บชื่อทีม เลขที่ใบสมัคร สถานะ และจำนวนสมาชิก ลบรหัสนักศึกษา ชื่อ เบอร์โทร อาจารย์ที่ปรึกษา ความยินยอม ข้อความ และไฟล์ที่ทีมส่ง PIN ใช้ไม่ได้อีก'),
         modeRadio('delete', 'ลบทั้งหมด', 'ลบทีมและข้อมูล/ไฟล์ทั้งหมดของปีนี้ — เลขที่ใบสมัครของปีนี้ไม่หลงเหลืออยู่ในระบบ'),
       ),
-      h('div', { class: 'field' }, h('label', { for: 'purge-confirm' }, `พิมพ์ PURGE ${e.year} เพื่อยืนยัน`), confirmInput),
+      h('h4', { class: 'step-h' }, 'ขั้นที่ 2 — พิมพ์ข้อความยืนยัน'),
+      h(
+        'div',
+        { class: 'field' },
+        h('label', { for: 'purge-confirm' }, 'พิมพ์ข้อความนี้ลงในช่องด้านล่างให้ตรงทุกตัวอักษร (ตัวพิมพ์ใหญ่ มีช่องว่าง 1 ช่อง):'),
+        h('code', { class: 'confirm-code' }, `PURGE ${e.year}`),
+        confirmInput,
+      ),
+      h('h4', { class: 'step-h' }, 'ขั้นที่ 3 — ยืนยันตัวตน'),
       h('div', { class: 'field' }, h('label', { for: 'purge-pw' }, 'รหัสผ่านของคุณ (กรอกซ้ำ)'), pwInput),
       h('div', { class: 'field narrow' }, h('label', { for: 'purge-totp' }, 'รหัส 6 หลักจากแอป Authenticator'), totpInput),
-      h('div', { class: 'guard-box' }, h('strong', 'เงื่อนไขที่ต้องผ่าน'), checklist, timerText),
+      h('h4', { class: 'step-h' }, 'ขั้นที่ 4 — ตรวจเงื่อนไขแล้วกดปุ่ม'),
+      h('div', { class: 'guard-box' }, h('strong', 'เงื่อนไขที่ต้องผ่าน (ครบทุกข้อปุ่มจึงจะกดได้)'), checklist, timerText),
       resetNote.el,
       h('div', { class: 'action-row' }, resetBtn, relogin),
       h('div', { 'data-purge-result': '' }, resultBox),

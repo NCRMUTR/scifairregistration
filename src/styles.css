@@ -407,3 +407,5 @@ a:hover { color: var(--primary-dark); }
 .guard-ok { color: var(--success); }
 .guard-no { color: var(--error); }
 .result-list { margin: 8px 0 0; padding-left: 20px; line-height: 1.7; overflow-wrap: anywhere; }
+.step-h { margin: 8px 0 0; font-size: 16px; color: var(--ink); border-top: 1px solid var(--line); padding-top: 14px; }
+.confirm-code { display: inline-block; align-self: flex-start; font-family: ui-monospace, Consolas, monospace; font-size: 20px; font-weight: 700; letter-spacing: 1px; background: #FEF3F2; color: var(--error); border: 1px dashed var(--error); border-radius: 8px; padding: 6px 12px; user-select: none; }

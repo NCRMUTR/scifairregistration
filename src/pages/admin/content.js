@@ -1,10 +1,11 @@
 // Tab 3 — เนื้อหาหน้าเว็บ: site-wide texts + logo, and per-edition title/intro/background/PDF/ack/PDPA.
 import { h } from '../../lib/dom.js';
 import { putToDrive } from '../../lib/api.js';
+import { shrinkImage } from '../../lib/image.js';
 import { textField, selectField, notice, runBusy, filePicker } from '../../lib/ui.js';
 
 const KINDS = {
-  logo: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 2, label: 'PNG / JPG / WebP ไม่เกิน 2 MB' },
+  logo: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 2, label: 'PNG / JPG / WebP ไม่เกิน 2 MB — โลโก้พื้นโปร่งใสจะถูกวางบนพื้นขาวและย่อให้อัตโนมัติ (Google Drive ทำพื้นโปร่งใสเป็นสีดำ และโลโก้แสดงบนกล่องสีขาวอยู่แล้ว)' },
   background: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 5, label: 'PNG / JPG / WebP ไม่เกิน 5 MB (แนะนำภาพแนวนอน ≥ 1600 px)' },
   rules_pdf: { exts: ['pdf'], mb: 15, label: 'PDF ไม่เกิน 15 MB' },
 };
@@ -33,8 +34,14 @@ export async function render(body, ctx) {
       bar.value = 0;
       bar.hidden = false;
       try {
-        const { upload_url } = await ctx.call('admin_prepare_asset', { kind, file_name: file.name, size: file.size, mime: file.type || 'application/octet-stream', origin: location.origin });
-        const fileId = await putToDrive(upload_url, file, (p) => { bar.value = p; });
+        // Drive's thumbnails flatten transparency to BLACK. The logo sits on a white box, so flatten it on white here (and shrink it).
+        let toSend = file;
+        if (kind === 'logo') {
+          const small = await shrinkImage(file, 600, 0.92);
+          toSend = new File([small.blob], small.name, { type: 'image/jpeg' });
+        }
+        const { upload_url } = await ctx.call('admin_prepare_asset', { kind, file_name: toSend.name, size: toSend.size, mime: toSend.type || 'application/octet-stream', origin: location.origin });
+        const fileId = await putToDrive(upload_url, toSend, (p) => { bar.value = p; });
         await ctx.call('admin_confirm_asset', { kind, edition_id: editionId, file_id: fileId });
         note.show('ok', 'อัปโหลดแล้ว — หน้าเว็บจะแสดงภายในประมาณ 1 นาที');
         await onDone();

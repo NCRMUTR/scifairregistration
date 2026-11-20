@@ -120,13 +120,35 @@ export async function render(root) {
       h('p', { class: 'slip-small' }, 'PIN ไม่แสดงซ้ำในหน้านี้ · หากต้องการแก้ไขข้อมูล โปรดติดต่อผู้จัดงานผ่านช่องทางด้านล่าง'),
     );
 
-    page.replaceChildren(heading, summary, buildUploads(data), buildMessageBox(site), h('div', { class: 'action-row' }, backButton()));
+    page.replaceChildren(heading, summary, buildDocuments(data), buildUploads(data), buildMessageBox(site), h('div', { class: 'action-row' }, backButton()));
     heading.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }
 
   function backButton() {
     return h('button', { type: 'button', class: 'btn btn-ghost', onClick: () => showForm() }, 'ออกจากหน้านี้');
+  }
+
+  // ───────────── documents / forms to download (only shown after the team signed in) ─────────────
+  function buildDocuments(data) {
+    const panel = h('section', { class: 'panel', 'aria-labelledby': 'doc-title' }, h('h2', { id: 'doc-title' }, 'เอกสารและแบบฟอร์มสำหรับดาวน์โหลด'));
+    const docs = data.documents ?? [];
+    if (!docs.length) {
+      panel.append(h('p', { class: 'empty-note' }, 'ขณะนี้ยังไม่มีเอกสารให้ดาวน์โหลด หากผู้จัดเพิ่มเอกสารหรือแบบฟอร์ม จะแสดงที่นี่'));
+      return panel;
+    }
+    panel.append(h('p', { class: 'panel-hint' }, 'กดปุ่ม "ดาวน์โหลด" เพื่อบันทึกไฟล์ลงอุปกรณ์ของคุณ'));
+    docs.forEach((d) =>
+      panel.append(
+        h(
+          'div',
+          { class: 'slot-card' },
+          h('div', { class: 'slot-main' }, h('div', { class: 'slot-title' }, d.title), h('div', { class: 'slot-rule' }, `${d.file_name} · ${formatSize(d.size_bytes)}`)),
+          h('a', { class: 'btn btn-outline', href: d.download_url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `ดาวน์โหลด ${d.title}` }, 'ดาวน์โหลด'),
+        ),
+      ),
+    );
+    return panel;
   }
 
   // ───────────── uploads ─────────────

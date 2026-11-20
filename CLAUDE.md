@@ -40,7 +40,7 @@ A Thai-language, conference-style website for a student pitching contest that is
   2. ปี/รอบการจัด — list editions; "create new year" (copies texts + closed slots, starts draft/closed); "set as current"; reg_mode radio (auto/open/closed) + open/close datetimes (Asia/Bangkok in the UI); key dates editor; max members.
   3. เนื้อหาหน้าเว็บ — global texts/logo (Drive folder `public-assets`) and per-edition title, intro, background, PDF, ack/PDPA text.
   4. รายชื่อทีม — search/filter, detail, change status, edit on behalf, delete, reset PIN, CSV export (UTF-8 BOM, formula-safe).
-  5. ช่องส่งไฟล์ — CRUD, open/close, view/download.
+  5. ช่องส่งไฟล์ — CRUD, open/close, view/download. (+ tab เอกสารให้ทีม: admin uploads forms/documents per edition; teams download them on the status page after name+PIN login; the application slip tells them where.)
   6. ภาพกิจกรรม — create album, multi-file upload with **in-browser resize** (long edge ≤ 2000 px JPEG/WebP) to Drive folder `gallery`, optional https `external_url`, publish/unpublish, reorder, delete.
   7. สำรอง/รีเซ็ต — see below.
 

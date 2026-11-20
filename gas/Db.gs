@@ -21,6 +21,7 @@ const SCHEMA = {
   messages: ['id', 'team_id', 'body', 'created_at', 'read_at'],
   gallery_albums: ['id', 'edition_id', 'title', 'description', 'event_date', 'external_url', 'cover_photo_id', 'sort_order', 'is_published', 'created_at'],
   gallery_photos: ['id', 'album_id', 'drive_file_id', 'caption', 'width', 'height', 'sort_order', 'created_at'],
+  documents: ['id', 'edition_id', 'title', 'drive_file_id', 'file_name', 'size_bytes', 'sort_order', 'uploaded_at'],
   lookup_attempts: ['key', 'fails', 'window_start', 'locked_until'],
   backup_log: ['id', 'edition_id', 'admin', 'counts', 'at'],
   audit_log: ['id', 'admin', 'action', 'target', 'detail', 'at'],
@@ -49,9 +50,25 @@ function spreadsheet_() {
 }
 
 function sheet_(name) {
-  const sh = spreadsheet_().getSheetByName(name);
+  const ss = spreadsheet_();
+  let sh = ss.getSheetByName(name);
+  if (!sh && SCHEMA[name]) sh = createMissingSheet_(ss, name);
   if (!sh) throw fail_('not_setup', 'missing sheet ' + name);
   return sh;
+}
+
+/** A sheet introduced by a later version is created on first use, so an existing spreadsheet needs no manual migration. */
+function createMissingSheet_(ss, name) {
+  try {
+    const sh = ss.insertSheet(name);
+    const cols = SCHEMA[name];
+    sh.getRange(1, 1, sh.getMaxRows(), cols.length).setNumberFormat('@');
+    sh.getRange(1, 1, 1, cols.length).setValues([cols]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+    return sh;
+  } catch (e) {
+    return ss.getSheetByName(name); // another request created it at the same moment
+  }
 }
 
 /** All data rows of a sheet as plain objects of strings, plus `_row` (1-based sheet row number). */

@@ -98,6 +98,7 @@ gas/                      โค้ดฝั่ง GAS (push ด้วย clasp 
   Backup.gs               admin_backups / admin_backup / admin_purge: สำรองลง Drive `backups` (สำเนาชีต + CSV + ZIP ไฟล์) และรีเซ็ตแบบมี guard 6 ข้อ
                           ตรวจตามลำดับ: sign-in ≤ 10 นาที → ข้อความ `PURGE <ปี>` → สำรอง ≤ 24 ชม. → ข้อมูลไม่เปลี่ยนหลังสำรอง (guard เพิ่มเติม)
                           → รหัสผ่านซ้ำ → TOTP (ตรวจสิ่งที่ไม่ใช้ข้อมูลลับก่อน คำขอที่ถูกปฏิเสธจึงไม่เผา TOTP) ทั้งหมดใน script lock เดียว
+  Documents.gs            เอกสาร/แบบฟอร์มที่ admin อัปโหลดให้ทีมโหลด (ชีต `documents`, สร้างเองเมื่อใช้ครั้งแรก; lookup_team คืนรายการหลังยืนยัน PIN)
   Gallery.gs              ภาพกิจกรรม: public_gallery, public_album (สาธารณะ) + admin_albums/admin_album/admin_save_album/
                           admin_reorder_albums/admin_delete_album/admin_prepare_photo/admin_confirm_photo/admin_update_photo/
                           admin_set_cover/admin_reorder_photos/admin_delete_photo — รูปเก็บในโฟลเดอร์ gallery (สาธารณะ) ย่อในเบราว์เซอร์

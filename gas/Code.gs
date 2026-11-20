@@ -6,7 +6,7 @@
  * `reason` is a short code mapped to Thai text in src/lib/api.js. Unexpected errors never leak details to visitors.
  */
 
-const VERSION = 'g9';
+const VERSION = 'g10';
 
 function doGet() {
   return reply_({ ok: true, data: { service: 'sci-tech-registration', version: VERSION } });
@@ -75,6 +75,11 @@ const ACTIONS = {
   admin_slots: function (req) { return adminSlots_(req); },
   admin_save_slot: function (req) { return adminSaveSlot_(req); },
   admin_delete_slot: function (req) { return adminDeleteSlot_(req); },
+  admin_documents: function (req) { return adminDocuments_(req); },
+  admin_prepare_document: function (req) { return adminPrepareDocument_(req); },
+  admin_confirm_document: function (req) { return adminConfirmDocument_(req); },
+  admin_update_document: function (req) { return adminUpdateDocument_(req); },
+  admin_delete_document: function (req) { return adminDeleteDocument_(req); },
   admin_albums: function (req) { return adminAlbums_(req); },
   admin_album: function (req) { return adminAlbum_(req); },
   admin_save_album: function (req) { return adminSaveAlbum_(req); },

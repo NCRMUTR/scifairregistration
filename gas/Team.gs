@@ -145,6 +145,7 @@ function lookupTeam_(req) {
     members: members,
     advisors: advisors,
     slots: slotsForTeam_(team),
+    documents: documentsForTeam_(team),
   };
 }
 

@@ -1,11 +1,10 @@
 // Tab 3 — เนื้อหาหน้าเว็บ: site-wide texts + logo, and per-edition title/intro/background/PDF/ack/PDPA.
 import { h } from '../../lib/dom.js';
 import { putToDrive } from '../../lib/api.js';
-import { shrinkImage } from '../../lib/image.js';
-import { textField, selectField, notice, runBusy, filePicker } from '../../lib/ui.js';
+import { textField, selectField, notice, runBusy, filePicker, confirmDialog } from '../../lib/ui.js';
 
 const KINDS = {
-  logo: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 2, label: 'PNG / JPG / WebP ไม่เกิน 2 MB — โลโก้พื้นโปร่งใสจะถูกวางบนพื้นขาวและย่อให้อัตโนมัติ (Google Drive ทำพื้นโปร่งใสเป็นสีดำ และโลโก้แสดงบนกล่องสีขาวอยู่แล้ว)' },
+  logo: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 2, label: 'PNG / JPG / WebP ไม่เกิน 2 MB — PNG พื้นโปร่งใสจะแสดงเป็นพื้นโปร่งใส' },
   background: { exts: ['png', 'jpg', 'jpeg', 'webp'], mb: 5, label: 'PNG / JPG / WebP ไม่เกิน 5 MB (แนะนำภาพแนวนอน ≥ 1600 px)' },
   rules_pdf: { exts: ['pdf'], mb: 15, label: 'PDF ไม่เกิน 15 MB' },
 };
@@ -22,7 +21,7 @@ export async function render(body, ctx) {
   body.append(h('h2', 'เนื้อหาหน้าเว็บ'), h('div', { class: 'admin-stack' }, globalBox, editionBox));
 
   /** Pick -> prepare_asset -> PUT to Drive -> confirm_asset. Shows progress inside `slot`. */
-  function assetUploader({ kind, editionId, buttonLabel, onDone }) {
+  function assetUploader({ kind, editionId, buttonLabel, onDone, hasFile, removeLabel, removeMessage }) {
     const rule = KINDS[kind];
     const note = notice();
     const bar = h('progress', { class: 'slot-progress', max: 1, value: 0, hidden: true, 'aria-label': 'ความคืบหน้าการอัปโหลด' });
@@ -34,14 +33,8 @@ export async function render(body, ctx) {
       bar.value = 0;
       bar.hidden = false;
       try {
-        // Drive's thumbnails flatten transparency to BLACK. The logo sits on a white box, so flatten it on white here (and shrink it).
-        let toSend = file;
-        if (kind === 'logo') {
-          const small = await shrinkImage(file, 600, 0.92);
-          toSend = new File([small.blob], small.name, { type: 'image/jpeg' });
-        }
-        const { upload_url } = await ctx.call('admin_prepare_asset', { kind, file_name: toSend.name, size: toSend.size, mime: toSend.type || 'application/octet-stream', origin: location.origin });
-        const fileId = await putToDrive(upload_url, toSend, (p) => { bar.value = p; });
+        const { upload_url } = await ctx.call('admin_prepare_asset', { kind, file_name: file.name, size: file.size, mime: file.type || 'application/octet-stream', origin: location.origin });
+        const fileId = await putToDrive(upload_url, file, (p) => { bar.value = p; });
         await ctx.call('admin_confirm_asset', { kind, edition_id: editionId, file_id: fileId });
         note.show('ok', 'อัปโหลดแล้ว — หน้าเว็บจะแสดงภายในประมาณ 1 นาที');
         await onDone();
@@ -53,7 +46,21 @@ export async function render(body, ctx) {
         picker.button.disabled = false;
       }
     });
-    return { nodes: [picker.button, picker.input, bar, note.el], hint: h('span', { class: 'help' }, rule.label) };
+    // Remove: detach the file from the site (the Drive file goes to the Drive trash).
+    const remove = hasFile ? h('button', { type: 'button', class: 'btn btn-outline btn-danger-outline' }, removeLabel) : null;
+    remove?.addEventListener('click', async () => {
+      if (!(await confirmDialog({ title: removeLabel, message: removeMessage, confirmLabel: 'ลบ', danger: true }))) return;
+      await runBusy(
+        remove,
+        'กำลังลบ…',
+        async () => {
+          await ctx.call('admin_clear_asset', { kind, edition_id: editionId });
+          await onDone();
+        },
+        note,
+      );
+    });
+    return { nodes: [h('div', { class: 'action-row' }, picker.button, remove), picker.input, bar, note.el], hint: h('span', { class: 'help' }, rule.label) };
   }
 
   // ───────── site-wide ─────────
@@ -68,7 +75,7 @@ export async function render(body, ctx) {
       submit_label: textField({ label: 'ปุ่ม Submit', value: s.submit_label, maxlength: 100 }),
       gallery_intro: textField({ label: 'ข้อความแนะนำหน้าภาพกิจกรรม', value: s.gallery_intro, maxlength: 300 }),
     };
-    const up = assetUploader({ kind: 'logo', buttonLabel: logoUrl ? 'เปลี่ยนโลโก้' : 'อัปโหลดโลโก้', onDone: async () => { logoUrl = (await ctx.call('admin_settings')).logo_url; paintGlobal(); } });
+    const up = assetUploader({ kind: 'logo', buttonLabel: logoUrl ? 'เปลี่ยนโลโก้' : 'อัปโหลดโลโก้', hasFile: Boolean(logoUrl), removeLabel: 'ลบโลโก้', removeMessage: 'ลบโลโก้ใช่หรือไม่? หน้าเว็บจะกลับไปแสดงตัวอักษร ST แทน และไฟล์ถูกย้ายไปถังขยะของ Google Drive', onDone: async () => { logoUrl = (await ctx.call('admin_settings')).logo_url; paintGlobal(); } });
     const note = notice();
     const save = h('button', { type: 'button', class: 'btn btn-primary' }, 'บันทึก');
     save.addEventListener('click', () =>
@@ -116,8 +123,8 @@ export async function render(body, ctx) {
       ack_text: textField({ label: 'ข้อความช่องรับทราบ', value: e.ack_text, rows: 2, maxlength: 1000 }),
       pdpa_text: textField({ label: 'ข้อความช่อง PDPA (ต้องให้ฝ่ายกฎหมาย/DPO ตรวจก่อนใช้จริง)', value: e.pdpa_text, rows: 4, maxlength: 5000 }),
     };
-    const bg = assetUploader({ kind: 'background', editionId: e.id, buttonLabel: e.background_url ? 'เปลี่ยนภาพพื้นหลัง' : 'อัปโหลดภาพพื้นหลัง', onDone: reloadEditions });
-    const pdf = assetUploader({ kind: 'rules_pdf', editionId: e.id, buttonLabel: e.rules_pdf ? 'อัปโหลด PDF ใหม่' : 'อัปโหลด PDF', onDone: reloadEditions });
+    const bg = assetUploader({ kind: 'background', editionId: e.id, buttonLabel: e.background_url ? 'เปลี่ยนภาพพื้นหลัง' : 'อัปโหลดภาพพื้นหลัง', hasFile: Boolean(e.background_url), removeLabel: 'ลบภาพพื้นหลัง', removeMessage: `ลบภาพพื้นหลังของปี ${e.year} ใช่หรือไม่? หน้าแรกจะกลับไปใช้พื้นสีกรมท่า และไฟล์ถูกย้ายไปถังขยะของ Google Drive`, onDone: reloadEditions });
+    const pdf = assetUploader({ kind: 'rules_pdf', editionId: e.id, buttonLabel: e.rules_pdf ? 'อัปโหลด PDF ใหม่' : 'อัปโหลด PDF', hasFile: Boolean(e.rules_pdf), removeLabel: 'ลบ PDF คำชี้แจงโครงการ', removeMessage: `ลบ PDF คำชี้แจงโครงการของปี ${e.year} ใช่หรือไม่? ปุ่ม "รายละเอียดโครงการ" จะแจ้งว่ายังไม่มีไฟล์ และไฟล์ถูกย้ายไปถังขยะของ Google Drive`, onDone: reloadEditions });
     const note = notice();
     const save = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, 'บันทึกการเปลี่ยนแปลง');
     save.addEventListener('click', () =>

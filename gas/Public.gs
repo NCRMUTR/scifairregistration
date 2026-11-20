@@ -7,6 +7,8 @@
   
   // ───────────── Drive URL helpers (public folders only) ─────────────
   function driveThumb_(fileId, width) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(fileId) + '&sz=w' + width; }
+/** Like driveThumb_ but keeps PNG transparency (the plain thumbnail turns transparent areas BLACK; "-pp" = keep PNG + alpha). */
+function driveLogo_(fileId, width) { return 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(fileId) + '=w' + width + '-pp'; }
   function drivePdf_(fileId) {
     const id = encodeURIComponent(fileId);
     return {
@@ -64,7 +66,7 @@
   
     const data = {
       settings: settings,
-      logo_url: raw.logo_file_id ? driveThumb_(raw.logo_file_id, 400) : null,
+      logo_url: raw.logo_file_id ? driveLogo_(raw.logo_file_id, 400) : null,
       edition: current && {
         id: current.id,
         year: int_(current.year),

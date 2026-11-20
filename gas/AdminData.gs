@@ -169,7 +169,7 @@ function adminSettings_(req) {
     rows_('site_settings').forEach(function (r) { raw[r.key] = r.value; });
     const settings = {};
     PUBLIC_SETTING_KEYS.forEach(function (k) { settings[k] = raw[k] || ''; });
-    return { settings: settings, logo_url: raw.logo_file_id ? driveThumb_(raw.logo_file_id, 400) : null };
+    return { settings: settings, logo_url: raw.logo_file_id ? driveLogo_(raw.logo_file_id, 400) : null };
   });
 }
 
@@ -255,6 +255,32 @@ function adminConfirmAsset_(req) {
     audit_(s, 'set_asset', r.edition_id || '', { kind: r.kind });
     bustPublicCache_();
     return { kind: r.kind };
+  });
+}
+
+/** req: { kind: 'logo' | 'background' | 'rules_pdf', edition_id? } — detach the file from the site and move it to the Drive trash. */
+function adminClearAsset_(req) {
+  return adminWrite_(req, function (r, s) {
+    if (!ASSET_KINDS[r.kind]) throw fail_('invalid_input');
+    let oldId = '';
+    if (r.kind === 'logo') {
+      const hit = rows_('site_settings').filter(function (x) { return x.key === 'logo_file_id'; })[0];
+      oldId = hit ? hit.value : '';
+      if (oldId) setSetting_('logo_file_id', '');
+    } else {
+      const e = findRow_('editions', String(r.edition_id || ''));
+      const col = r.kind === 'background' ? 'background_file_id' : 'rules_pdf_file_id';
+      oldId = e[col];
+      if (oldId) {
+        const patch = {};
+        patch[col] = '';
+        update_('editions', e._row, patch);
+      }
+    }
+    if (oldId) trashFile_(oldId);
+    audit_(s, 'clear_asset', r.edition_id || '', { kind: r.kind, had_file: !!oldId });
+    bustPublicCache_();
+    return { kind: r.kind, removed: !!oldId };
   });
 }
 

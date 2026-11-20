@@ -1,5 +1,5 @@
 // Shared page frame: skip link, top navigation, <main>, footer (with the small admin link).
-import { h } from './dom.js';
+import { h, richText } from './dom.js';
 import { setting, loadSite } from './site.js';
 import { apiConfigured, messageFor } from './api.js';
 
@@ -33,8 +33,8 @@ function renderFooter(site) {
       'div',
       { class: 'footer-text' },
       h('strong', siteName),
-      setting(site, 'footer_text') ? h('p', setting(site, 'footer_text')) : null,
-      setting(site, 'contact_info') ? h('p', setting(site, 'contact_info')) : null,
+      setting(site, 'footer_text') ? h('p', richText(setting(site, 'footer_text'))) : null,
+      setting(site, 'contact_info') ? h('p', richText(setting(site, 'contact_info'))) : null,
     ),
     h('a', { href: '#/admin' }, 'เข้าสู่ระบบ Admin'),
   );

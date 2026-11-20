@@ -9,6 +9,7 @@ const KINDS = {
   rules_pdf: { exts: ['pdf'], mb: 15, label: 'PDF ไม่เกิน 15 MB' },
 };
 
+const BOLD = 'ตัวหนา: พิมพ์ **ข้อความ** (ดอกจัน 2 ตัวหน้าและหลัง) ขึ้นบรรทัดใหม่ได้ตามปกติ';
 const ext = (name) => (/\.([A-Za-z0-9]{1,10})$/.exec(name || '')?.[1] ?? '').toLowerCase();
 
 export async function render(body, ctx) {
@@ -68,12 +69,12 @@ export async function render(body, ctx) {
     const s = settingsData.settings;
     const f = {
       site_name: textField({ label: 'ชื่อเว็บ', value: s.site_name, maxlength: 200 }),
-      footer_text: textField({ label: 'ข้อความท้ายหน้า (Footer)', value: s.footer_text, rows: 2, maxlength: 1000 }),
-      contact_info: textField({ label: 'ช่องทางติดต่อ (แสดงท้ายหน้าและหน้าตรวจสอบการสมัคร)', value: s.contact_info, rows: 2, maxlength: 1000 }),
+      footer_text: textField({ label: 'ข้อความท้ายหน้า (Footer)', value: s.footer_text, rows: 2, maxlength: 1000, help: BOLD }),
+      contact_info: textField({ label: 'ช่องทางติดต่อ (แสดงท้ายหน้าและหน้าตรวจสอบการสมัคร)', value: s.contact_info, rows: 2, maxlength: 1000, help: BOLD }),
       details_button_label: textField({ label: 'ปุ่มรายละเอียดโครงการ', value: s.details_button_label, maxlength: 100 }),
       apply_button_label: textField({ label: 'ปุ่มสมัคร', value: s.apply_button_label, maxlength: 100 }),
       submit_label: textField({ label: 'ปุ่ม Submit', value: s.submit_label, maxlength: 100 }),
-      gallery_intro: textField({ label: 'ข้อความแนะนำหน้าภาพกิจกรรม', value: s.gallery_intro, maxlength: 300 }),
+      gallery_intro: textField({ label: 'ข้อความแนะนำหน้าภาพกิจกรรม', value: s.gallery_intro, maxlength: 300, help: BOLD }),
     };
     const up = assetUploader({ kind: 'logo', buttonLabel: logoUrl ? 'เปลี่ยนโลโก้' : 'อัปโหลดโลโก้', hasFile: Boolean(logoUrl), removeLabel: 'ลบโลโก้', removeMessage: 'ลบโลโก้ใช่หรือไม่? หน้าเว็บจะกลับไปแสดงตัวอักษร ST แทน และไฟล์ถูกย้ายไปถังขยะของ Google Drive', onDone: async () => { logoUrl = (await ctx.call('admin_settings')).logo_url; paintGlobal(); } });
     const note = notice();
@@ -118,10 +119,10 @@ export async function render(body, ctx) {
 
     const f = {
       title: textField({ label: 'ชื่อโครงการประจำปี', value: e.title, maxlength: 200 }),
-      subtitle: textField({ label: 'คำบรรยายใต้ชื่อ (ไม่บังคับ)', value: e.subtitle, maxlength: 300 }),
-      intro_text: textField({ label: 'รายละเอียดโครงการโดยย่อ', value: e.intro_text, rows: 4, maxlength: 3000 }),
-      ack_text: textField({ label: 'ข้อความช่องรับทราบ', value: e.ack_text, rows: 2, maxlength: 1000 }),
-      pdpa_text: textField({ label: 'ข้อความช่อง PDPA (ต้องให้ฝ่ายกฎหมาย/DPO ตรวจก่อนใช้จริง)', value: e.pdpa_text, rows: 4, maxlength: 5000 }),
+      subtitle: textField({ label: 'คำบรรยายใต้ชื่อ (ไม่บังคับ)', value: e.subtitle, maxlength: 300, help: BOLD }),
+      intro_text: textField({ label: 'รายละเอียดโครงการโดยย่อ', value: e.intro_text, rows: 4, maxlength: 3000, help: BOLD }),
+      ack_text: textField({ label: 'ข้อความช่องรับทราบ', value: e.ack_text, rows: 2, maxlength: 1000, help: BOLD }),
+      pdpa_text: textField({ label: 'ข้อความช่อง PDPA (ต้องให้ฝ่ายกฎหมาย/DPO ตรวจก่อนใช้จริง)', value: e.pdpa_text, rows: 4, maxlength: 5000, help: BOLD }),
     };
     const bg = assetUploader({ kind: 'background', editionId: e.id, buttonLabel: e.background_url ? 'เปลี่ยนภาพพื้นหลัง' : 'อัปโหลดภาพพื้นหลัง', hasFile: Boolean(e.background_url), removeLabel: 'ลบภาพพื้นหลัง', removeMessage: `ลบภาพพื้นหลังของปี ${e.year} ใช่หรือไม่? หน้าแรกจะกลับไปใช้พื้นสีกรมท่า และไฟล์ถูกย้ายไปถังขยะของ Google Drive`, onDone: reloadEditions });
     const pdf = assetUploader({ kind: 'rules_pdf', editionId: e.id, buttonLabel: e.rules_pdf ? 'อัปโหลด PDF ใหม่' : 'อัปโหลด PDF', hasFile: Boolean(e.rules_pdf), removeLabel: 'ลบ PDF คำชี้แจงโครงการ', removeMessage: `ลบ PDF คำชี้แจงโครงการของปี ${e.year} ใช่หรือไม่? ปุ่ม "รายละเอียดโครงการ" จะแจ้งว่ายังไม่มีไฟล์ และไฟล์ถูกย้ายไปถังขยะของ Google Drive`, onDone: reloadEditions });

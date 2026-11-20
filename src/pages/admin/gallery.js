@@ -31,7 +31,7 @@ export async function render(body, ctx) {
     const f = {
       edition: selectField({ label: 'ปี', options: editions.map((e) => ({ value: e.id, label: String(e.year) })), value: album?.edition_id ?? editionId }),
       title: textField({ label: 'ชื่ออัลบั้ม', value: album?.title ?? '', maxlength: 200 }),
-      description: textField({ label: 'คำอธิบาย (ไม่บังคับ)', value: album?.description ?? '', rows: 2, maxlength: 1000 }),
+      description: textField({ label: 'คำอธิบาย (ไม่บังคับ)', value: album?.description ?? '', rows: 2, maxlength: 1000, help: 'ตัวหนา: พิมพ์ **ข้อความ** (ดอกจัน 2 ตัวหน้าและหลัง)' }),
       date: textField({ label: 'วันที่จัดกิจกรรม (ไม่บังคับ)', value: album?.event_date ?? '', type: 'date', narrow: true }),
       url: textField({
         label: 'ลิงก์อัลบั้มภายนอก (ไม่บังคับ)',

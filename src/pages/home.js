@@ -1,7 +1,7 @@
 // #/  Home: hero -> intro -> details (PDF modal) -> apply button + status -> key dates -> latest photos -> footer.
 // Everything comes from the 'public_site' action (settings, current edition, latest photos, ready-to-use Drive URLs).
 // Registration state is for display only; submit_team re-checks on the server.
-import { h, append } from '../lib/dom.js';
+import { h, append, richText } from '../lib/dom.js';
 import { loadSite, setting } from '../lib/site.js';
 import { mountShell, renderLoadError } from '../lib/layout.js';
 import { openModal } from '../lib/modal.js';
@@ -23,7 +23,7 @@ function buildHero(site) {
       { class: 'hero-inner' },
       h('div', { class: 'hero-logo' }, logoUrl ? h('img', { src: logoUrl, alt: siteName }) : h('span', { 'aria-hidden': 'true' }, 'ST')),
       h('h1', ed?.title || siteName),
-      ed?.subtitle ? h('div', { class: 'hero-sub' }, ed.subtitle) : null,
+      ed?.subtitle ? h('div', { class: 'hero-sub' }, richText(ed.subtitle)) : null,
     ),
   );
 }
@@ -145,7 +145,7 @@ export async function render(root) {
     h(
       'section',
       { class: 'intro', 'aria-label': 'แนะนำโครงการ' },
-      ed?.intro_text ? h('p', { class: 'intro-text' }, ed.intro_text) : null,
+      ed?.intro_text ? h('p', { class: 'intro-text' }, richText(ed.intro_text)) : null,
       h('button', { type: 'button', class: 'btn btn-outline btn-lg', onClick: () => openRulesModal(site, detailsLabel) }, detailsLabel),
       buildApplyBlock(site),
     ),

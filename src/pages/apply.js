@@ -1,6 +1,6 @@
 // #/apply — application form -> summary modal -> Confirm (action submit_team) -> success view + slip PNG.
 // Business rules are enforced by the server (gas/Apply.gs); everything here only helps the user early.
-import { h } from '../lib/dom.js';
+import { h, richText } from '../lib/dom.js';
 import { api, messageFor } from '../lib/api.js';
 import { loadSite, setting, invalidateSite } from '../lib/site.js';
 import { mountShell, renderLoadError } from '../lib/layout.js';
@@ -333,7 +333,7 @@ export async function render(root) {
       state[key] = input.checked;
       refresh();
     });
-    return h('label', { class: 'chk-row' }, input, h('span', text));
+    return h('label', { class: 'chk-row' }, input, h('span', richText(text)));
   };
 
   // ── summary modal -> Confirm ──

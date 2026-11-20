@@ -1,7 +1,7 @@
 // #/status  Application check: English team name + PIN -> summary, status, open upload slots, message to the committee.
 // The PIN is kept only in this closure (never in storage, URL or DOM) and is re-sent with each action, because the
 // server re-verifies (team, PIN) — and counts failures — on every call.
-import { h } from '../lib/dom.js';
+import { h, richText } from '../lib/dom.js';
 import { api, messageFor, putToDrive } from '../lib/api.js';
 import { loadSite, setting } from '../lib/site.js';
 import { mountShell } from '../lib/layout.js';
@@ -218,7 +218,7 @@ export async function render(root) {
         'div',
         { class: 'slot-main' },
         h('div', { class: 'slot-title' }, slot.title),
-        slot.description ? h('div', { class: 'slot-rule' }, slot.description) : null,
+        slot.description ? h('div', { class: 'slot-rule' }, richText(slot.description)) : null,
         h('div', { class: 'slot-rule' }, rule.join(' · ')),
         stateEl,
         bar,
@@ -274,7 +274,7 @@ export async function render(root) {
       h('div', { class: 'action-row' }, send),
       ok,
       err,
-      contact ? h('p', { class: 'panel-hint' }, `ช่องทางติดต่ออื่น: ${contact}`) : null,
+      contact ? h('p', { class: 'panel-hint' }, 'ช่องทางติดต่ออื่น: ', richText(contact)) : null,
     );
   }
 

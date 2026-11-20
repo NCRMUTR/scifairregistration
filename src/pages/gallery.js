@@ -1,7 +1,7 @@
 // #/gallery  Permanent photo gallery, grouped by year:
 //   year tabs -> album cards -> photo grid -> lightbox.   An album with an external link shows that link instead of a grid.
 // The address keeps the place:  #/gallery?y=2026  (year)   #/gallery?y=2026&a=<album id>  (one album)
-import { h, append, replace } from '../lib/dom.js';
+import { h, append, replace, richText } from '../lib/dom.js';
 import { api } from '../lib/api.js';
 import { loadSite, setting } from '../lib/site.js';
 import { mountShell, renderLoadError } from '../lib/layout.js';
@@ -59,7 +59,7 @@ export async function render(root) {
 
   const intro = setting(site, 'gallery_intro');
   const head = h('div', { class: 'section-head' }, h('h1', { class: 'page-h1' }, 'ภาพกิจกรรม'));
-  append(page, [head, intro ? h('p', { class: 'intro-text gallery-intro' }, intro) : null]);
+  append(page, [head, intro ? h('p', { class: 'intro-text gallery-intro' }, richText(intro)) : null]);
 
   if (!albums.length) {
     page.append(h('p', { class: 'empty-note' }, 'ยังไม่มีภาพกิจกรรมที่เผยแพร่ จะอัปเดตเร็วๆ นี้'));
@@ -100,7 +100,7 @@ export async function render(root) {
   append(page, [
     tabs,
     back,
-    h('header', { class: 'album-head' }, h('h2', { class: 'album-h2' }, album.title), album.event_date ? h('p', { class: 'album-sub' }, thaiDate(album.event_date)) : null, album.description ? h('p', { class: 'intro-text' }, album.description) : null),
+    h('header', { class: 'album-head' }, h('h2', { class: 'album-h2' }, album.title), album.event_date ? h('p', { class: 'album-sub' }, thaiDate(album.event_date)) : null, album.description ? h('p', { class: 'intro-text' }, richText(album.description)) : null),
     body,
   ]);
 

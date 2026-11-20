@@ -1,6 +1,8 @@
 // Tiny DOM helpers. Text is always inserted as text nodes (never innerHTML), so admin-authored
 // strings coming from the database cannot inject markup.
 
+import { parseBold } from './richtext.js';
+
 const PROPS = new Set(['value', 'checked', 'disabled', 'hidden', 'selected', 'indeterminate']);
 
 /**
@@ -36,6 +38,11 @@ export function append(parent, children) {
     parent.append(child instanceof Node ? child : document.createTextNode(String(child)));
   }
   return parent;
+}
+
+/** Admin-written text with **bold** -> array of text nodes and <strong> elements (never HTML). */
+export function richText(text) {
+  return parseBold(text).map((p) => (p.bold ? h('strong', p.text) : p.text));
 }
 
 /** Replace everything inside `parent`. Unlike parent.replaceChildren(...), null/undefined/false children are skipped (not printed). */

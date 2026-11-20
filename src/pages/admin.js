@@ -9,6 +9,7 @@ const TABS = [
   { key: 'overview', label: 'ภาพรวม', load: () => import('./admin/overview.js') },
   { key: 'editions', label: 'ปี/รอบการจัด', load: () => import('./admin/editions.js') },
   { key: 'content', label: 'เนื้อหาหน้าเว็บ', load: () => import('./admin/content.js') },
+  { key: 'news', label: 'ประกาศข่าว', load: () => import('./admin/news.js') },
   { key: 'teams', label: 'รายชื่อทีม', load: () => import('./admin/teams.js') },
   { key: 'slots', label: 'ช่องส่งไฟล์', load: () => import('./admin/slots.js') },
   { key: 'documents', label: 'เอกสารให้ทีม', load: () => import('./admin/documents.js') },

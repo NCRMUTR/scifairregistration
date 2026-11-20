@@ -96,6 +96,59 @@ function buildDates(site) {
   );
 }
 
+function buildNews(site) {
+  const items = Array.isArray(site.announcements) ? site.announcements : [];
+  const FIRST = 5; // the rest sits behind a "show all" button
+  const newSince = Date.parse(site.server_time) - 7 * 24 * 3600 * 1000;
+  const section = h('section', { id: 'news', class: 'section anchor', 'aria-labelledby': 'news-title' }, h('div', { class: 'section-head' }, h('h2', { id: 'news-title' }, 'ประกาศและข่าวสาร')));
+  if (!items.length) {
+    section.append(h('p', { class: 'empty-note' }, 'ยังไม่มีประกาศในขณะนี้ — ติดตามข่าวสารที่หน้านี้'));
+    return section;
+  }
+  const rows = items.map((a, i) => {
+    const isNew = Date.parse(`${a.date}T00:00:00+07:00`) >= newSince;
+    return h(
+      'tr',
+      { class: `news-row${a.pinned ? ' is-pinned' : ''}`, hidden: i >= FIRST },
+      h('td', { class: 'news-date' }, h('span', formatKeyDate(a.date)), a.pinned ? h('span', { class: 'news-badge news-badge-pin' }, 'ปักหมุด') : null, isNew ? h('span', { class: 'news-badge news-badge-new' }, 'ใหม่') : null),
+      h(
+        'td',
+        { class: 'news-main' },
+        h('div', { class: 'news-title' }, a.title),
+        a.body ? h('div', { class: 'news-body' }, richText(a.body)) : null,
+        a.link_url ? h('a', { class: 'btn btn-outline btn-sm news-link', href: a.link_url, target: '_blank', rel: 'noopener noreferrer' }, `${a.link_label || 'ดูเพิ่มเติม'} ↗`) : null,
+      ),
+    );
+  });
+  const tbody = h('tbody', { id: 'news-rows' }, rows);
+  section.append(
+    h(
+      'div',
+      { class: 'news' },
+      h(
+        'table',
+        { class: 'news-table' },
+        h('caption', { class: 'sr-only' }, 'ตารางประกาศและข่าวสาร เรียงจากประกาศที่ปักหมุดและใหม่ที่สุด'),
+        h('thead', h('tr', h('th', { scope: 'col' }, 'วันที่'), h('th', { scope: 'col' }, 'ประกาศ'))),
+        tbody,
+      ),
+    ),
+  );
+  if (items.length > FIRST) {
+    const btn = h('button', { type: 'button', class: 'btn btn-outline news-more', 'aria-expanded': 'false', 'aria-controls': 'news-rows' }, `ดูประกาศทั้งหมด (${items.length})`);
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      rows.forEach((r, i) => {
+        if (i >= FIRST) r.hidden = !open;
+      });
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'แสดงเฉพาะประกาศล่าสุด' : `ดูประกาศทั้งหมด (${items.length})`;
+    });
+    section.append(h('div', { class: 'news-more-wrap' }, btn));
+  }
+  return section;
+}
+
 function buildPhotos(photos) {
   if (!photos.length) return null; // hidden until an admin publishes an album
   return h(
@@ -150,6 +203,7 @@ export async function render(root) {
       buildApplyBlock(site),
     ),
     buildDates(site),
+    buildNews(site),
     buildPhotos(site.latest_photos ?? []),
   ]);
 

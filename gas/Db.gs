@@ -21,6 +21,7 @@ const SCHEMA = {
   messages: ['id', 'team_id', 'body', 'created_at', 'read_at'],
   gallery_albums: ['id', 'edition_id', 'title', 'description', 'event_date', 'external_url', 'cover_photo_id', 'sort_order', 'is_published', 'created_at'],
   gallery_photos: ['id', 'album_id', 'drive_file_id', 'caption', 'width', 'height', 'sort_order', 'created_at'],
+  announcements: ['id', 'edition_id', 'title', 'body', 'link_url', 'link_label', 'publish_date', 'is_pinned', 'is_published', 'created_at', 'updated_at'],
   documents: ['id', 'edition_id', 'title', 'drive_file_id', 'file_name', 'size_bytes', 'sort_order', 'uploaded_at'],
   lookup_attempts: ['key', 'fails', 'window_start', 'locked_until'],
   backup_log: ['id', 'edition_id', 'admin', 'counts', 'at'],

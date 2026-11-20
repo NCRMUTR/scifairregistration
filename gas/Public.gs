@@ -88,6 +88,7 @@ function driveLogo_(fileId, width) { return 'https://lh3.googleusercontent.com/d
         .sort(function (a, b) { return int_(b.year) - int_(a.year); })
         .map(function (e) { return { id: e.id, year: int_(e.year), title: e.title }; }),
       latest_photos: photos,
+      announcements: current ? announcementsPublic_(current.id) : [],
     };
     const text = JSON.stringify(data);
     if (text.length < 90000) cache.put('public_data', text, 60); // CacheService values are limited to 100 KB
@@ -107,6 +108,7 @@ function driveLogo_(fileId, width) { return 'https://lh3.googleusercontent.com/d
       edition: ed,
       years: data.years,
       latest_photos: data.latest_photos,
+      announcements: data.announcements || [],
     };
   }
   

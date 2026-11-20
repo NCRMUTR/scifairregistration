@@ -1,6 +1,6 @@
 const fs = require('fs'), vm = require('vm'), crypto = require('crypto'), assert = require('assert');
 const root = require('path').join(__dirname, '..', '..', 'gas') + '/';
-const code = ['Db.gs', 'Code.gs', 'Public.gs', 'Apply.gs', 'Team.gs', 'Admin.gs', 'AdminData.gs', 'Documents.gs'].map((f) => fs.readFileSync(root + f, 'utf8')).join('\n');
+const code = ['Db.gs', 'Code.gs', 'Public.gs', 'Apply.gs', 'Team.gs', 'Admin.gs', 'AdminData.gs', 'Documents.gs', 'Announcements.gs'].map((f) => fs.readFileSync(root + f, 'utf8')).join('\n');
 
 const store = {}; // sheet name -> 2D array (row 0 = header)
 const props = { SHEET_ID: 'x', PEPPER: 'pepper-pepper', ALLOWED_ORIGINS: 'http://localhost:5173,https://ncrmutr.github.io', FOLDER_TEAM_FILES: 'F' };
